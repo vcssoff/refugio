@@ -36,8 +36,8 @@ export default function PublicarClient() {
   const [type, setType] = useState<PetType>(initialType);
   const [images, setImages] = useState<UploadedPetImage[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number }>({
-    lat: -34.6037,
-    lng: -58.3816,
+    lat: -34.9011, // Montevideo, Uruguay
+    lng: -56.1645,
   });
 
   const [formData, setFormData] = useState({
@@ -53,6 +53,8 @@ export default function PublicarClient() {
     dewormed: false,
     neutered: false,
     specialNeeds: "",
+    isUrgent: false,
+    healthCondition: "",
     goodWithDogs: false,
     goodWithCats: false,
     goodWithKids: false,
@@ -164,6 +166,8 @@ export default function PublicarClient() {
                 dewormed: false,
                 neutered: false,
                 specialNeeds: "",
+                isUrgent: false,
+                healthCondition: "",
                 goodWithDogs: false,
                 goodWithCats: false,
                 goodWithKids: false,
@@ -444,6 +448,41 @@ export default function PublicarClient() {
             </div>
           </div>
 
+          {/* Adopciones Urgentes y Estado de Salud / Heridas */}
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <h3 className="text-xs font-bold text-slate-700 uppercase flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+              Adopción Urgente y Estado de Salud
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-rose-200 bg-rose-50/40 cursor-pointer hover:bg-rose-50/70 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={formData.isUrgent}
+                  onChange={(e) => setFormData({ ...formData, isUrgent: e.target.checked })}
+                  className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                />
+                <div>
+                  <span className="text-xs font-bold text-rose-900 block">🚨 Marcar como Caso Urgente / Patitas Doradas</span>
+                  <span className="text-[11px] text-rose-700">Mascotas de edad avanzada (senior), con necesidad de tratamiento o rescate prioritario.</span>
+                </div>
+              </label>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Herida, discapacidad o enfermedad conocida (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={formData.healthCondition}
+                  onChange={(e) => setFormData({ ...formData, healthCondition: e.target.value })}
+                  placeholder="Ej. Le falta una patita trasera (trípode), tiene asma, ciego de un ojito..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="pt-4 border-t border-slate-100">
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Descripción, historia o detalles del animal *
@@ -479,7 +518,7 @@ export default function PublicarClient() {
                 required
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                placeholder="Ej. Buenos Aires / Córdoba / Rosario"
+                placeholder="Ej. Montevideo / Canelones / Maldonado"
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
@@ -491,7 +530,7 @@ export default function PublicarClient() {
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Ej. Cerca de Plaza Serrano"
+                placeholder="Ej. Pocitos, Av. Brasil y Benito Blanco"
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
@@ -527,13 +566,13 @@ export default function PublicarClient() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Teléfono / WhatsApp (opcional pero muy recomendado)
+                Teléfono / WhatsApp (Uruguay: +598)
               </label>
               <input
                 type="tel"
                 value={formData.contactPhone}
                 onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-                placeholder="+54 9 11 1234-5678"
+                placeholder="Ej. +598 99 123 456"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>

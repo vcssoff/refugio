@@ -11,8 +11,8 @@ interface MapSelectorProps {
 }
 
 export default function MapSelector({
-  initialLat = -34.6037, // Buenos Aires por defecto, o personalizable
-  initialLng = -58.3816,
+  initialLat = -34.9011, // Montevideo, Uruguay por defecto
+  initialLng = -56.1645,
   onLocationSelected,
   height = "380px",
 }: MapSelectorProps) {

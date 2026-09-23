@@ -18,6 +18,7 @@ import {
   FileText,
   MapPin,
 } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-orange-100/80 shadow-xs">
+    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-orange-100/80 dark:border-stone-800 shadow-xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Rebrandeado: Refugio Patitas con colores cálidos */}
@@ -49,10 +50,10 @@ export default function Navbar() {
               <PawPrint className="w-5 h-5 fill-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-xl tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+              <span className="font-black text-xl tracking-tight text-slate-900 dark:text-stone-100 group-hover:text-orange-600 transition-colors">
                 Refugio <span className="text-orange-500">Patitas</span>
               </span>
-              <span className="text-[10px] font-bold text-amber-600 -mt-1 tracking-wide">
+              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 -mt-1 tracking-wide">
                 Amor en cuatro patas
               </span>
             </div>
@@ -69,10 +70,10 @@ export default function Navbar() {
                   href={link.href}
                   className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                     link.highlight
-                      ? "text-orange-700 bg-orange-50/80 hover:bg-orange-100 border border-orange-200"
+                      ? "text-orange-700 bg-orange-50/80 hover:bg-orange-100 border border-orange-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60"
                       : active
-                      ? "text-orange-600 bg-orange-50"
-                      : "text-slate-600 hover:text-orange-600 hover:bg-orange-50/40"
+                      ? "text-orange-600 bg-orange-50 dark:bg-stone-800 dark:text-orange-400"
+                      : "text-slate-600 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-stone-800/60"
                   }`}
                 >
                   <Icon className={`w-3.5 h-3.5 ${link.highlight ? "text-orange-500" : ""}`} />
@@ -107,11 +108,14 @@ export default function Navbar() {
               Publicar Mascota
             </Link>
 
+            {/* Theme Toggle (Modo Claro / Oscuro) */}
+            <ThemeToggle />
+
             {session?.user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-stone-700">
                 <Link
                   href="/perfil"
-                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-orange-50/50 transition-colors text-slate-700 text-xs font-semibold"
+                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-orange-50/50 dark:hover:bg-stone-800 transition-colors text-slate-700 dark:text-stone-200 text-xs font-semibold"
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-orange-400 to-amber-300 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                     {session.user.name?.[0]?.toUpperCase() || "U"}
@@ -121,7 +125,7 @@ export default function Navbar() {
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   title="Cerrar Sesión"
-                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -129,7 +133,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-stone-300 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-stone-800 rounded-xl transition-colors"
               >
                 <UserIcon className="w-3.5 h-3.5" />
                 Ingresar
@@ -139,6 +143,7 @@ export default function Navbar() {
 
           {/* Mobile menu toggle */}
           <div className="flex lg:hidden items-center gap-2">
+            <ThemeToggle />
             <Link
               href="/publicar"
               className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-lg shadow-xs"
@@ -159,7 +164,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-orange-100 bg-white px-4 pt-3 pb-6 space-y-2 shadow-xl animate-in slide-in-from-top-2">
+        <div className="lg:hidden border-t border-orange-100 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-6 space-y-2 shadow-xl animate-in slide-in-from-top-2">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const active = isActive(link.href);
@@ -169,7 +174,9 @@ export default function Navbar() {
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold ${
-                  active ? "text-orange-600 bg-orange-50" : "text-slate-700 hover:bg-slate-50"
+                  active
+                    ? "text-orange-600 bg-orange-50 dark:bg-stone-800 dark:text-orange-400"
+                    : "text-slate-700 dark:text-stone-200 hover:bg-slate-50 dark:hover:bg-stone-800/60"
                 }`}
               >
                 <Icon className="w-4 h-4 text-orange-500" />
@@ -181,7 +188,7 @@ export default function Navbar() {
           <Link
             href="/perdidos?view=map"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-stone-200 hover:bg-slate-50 dark:hover:bg-stone-800/60"
           >
             <MapPin className="w-4 h-4 text-orange-500" />
             Mapa con Radio de 300m
@@ -191,7 +198,7 @@ export default function Navbar() {
             <Link
               href="/admin/solicitudes"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-700 bg-rose-50"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-700 bg-rose-50 dark:bg-rose-950/40 dark:text-rose-300"
             >
               <Bell className="w-4 h-4 text-rose-500" />
               Bandeja de Solicitudes (Admin)

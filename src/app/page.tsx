@@ -13,6 +13,7 @@ import {
   Sparkles,
   Calendar,
   FileText,
+  AlertTriangle,
 } from "lucide-react";
 
 export const revalidate = 0; // SSR dinámico
@@ -29,6 +30,24 @@ async function getFeaturedPets() {
         user: true,
       },
       take: 6,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const urgentPets = await prisma.pet.findMany({
+      where: {
+        type: "ADOPCION",
+        status: "PUBLICADO",
+        OR: [
+          { isUrgent: true },
+          { ageGroup: "SENIOR" },
+          { healthCondition: { not: null } },
+        ],
+      },
+      include: {
+        images: true,
+        user: true,
+      },
+      take: 3,
       orderBy: { createdAt: "desc" },
     });
 
@@ -49,15 +68,15 @@ async function getFeaturedPets() {
       where: { type: "ADOPCION" },
     });
 
-    return { adoptionPets, lostPets, totalAdoptions };
+    return { adoptionPets, urgentPets, lostPets, totalAdoptions };
   } catch (error) {
     console.error("Error al cargar datos en Home:", error);
-    return { adoptionPets: [], lostPets: [], totalAdoptions: 0 };
+    return { adoptionPets: [], urgentPets: [], lostPets: [], totalAdoptions: 0 };
   }
 }
 
 export default async function HomePage() {
-  const { adoptionPets, lostPets, totalAdoptions } = await getFeaturedPets();
+  const { adoptionPets, urgentPets, lostPets, totalAdoptions } = await getFeaturedPets();
 
   return (
     <div className="space-y-16 pb-16">
@@ -201,6 +220,43 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {lostPets.map((pet) => (
+                <PetCard key={pet.id} pet={pet} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Sección Dorada: Adopciones Urgentes y Viejitos */}
+      {urgentPets.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-rose-50/80 border border-amber-200/90 rounded-3xl p-6 sm:p-8 dark:from-stone-900 dark:via-stone-900/90 dark:to-stone-900 dark:border-amber-900/40">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+                  Patitas Doradas • Casos Especiales y Urgentes
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-amber-100 flex items-center gap-2">
+                  <span>Adopciones Urgentes y Viejitos</span>
+                  <span className="text-xl">👴💖</span>
+                </h2>
+                <p className="text-slate-600 dark:text-stone-300 text-xs sm:text-sm">
+                  Peluditos senior o con condiciones especiales que necesitan con mayor urgencia el calor de un hogar lleno de amor.
+                </p>
+              </div>
+
+              <Link
+                href="/adopciones"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0"
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                Ver todos los casos urgentes
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {urgentPets.map((pet) => (
                 <PetCard key={pet.id} pet={pet} />
               ))}
             </div>

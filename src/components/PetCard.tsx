@@ -11,7 +11,7 @@ import {
   Species,
   Gender,
 } from "@/lib/constants";
-import { MapPin, Check, Heart, ShieldCheck, Sparkles } from "lucide-react";
+import { MapPin, Check, Heart, ShieldCheck, Sparkles, AlertTriangle, Stethoscope } from "lucide-react";
 
 export interface PetCardData {
   id: string;
@@ -24,6 +24,8 @@ export interface PetCardData {
   size: string;
   city?: string | null;
   shelterLocation?: string | null;
+  isUrgent?: boolean;
+  healthCondition?: string | null;
   vaccinated: boolean;
   neutered: boolean;
   goodWithKids: boolean;
@@ -55,10 +57,10 @@ export default function PetCard({ pet }: PetCardProps) {
   return (
     <Link
       href={`/mascota/${pet.id}`}
-      className="group flex flex-col bg-white rounded-3xl overflow-hidden border border-orange-100/90 shadow-xs hover:shadow-xl hover:border-orange-300 transition-all duration-300 relative"
+      className="group flex flex-col bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-orange-100/90 dark:border-stone-800 shadow-xs hover:shadow-xl hover:border-orange-300 transition-all duration-300 relative"
     >
       {/* Contenedor de Imagen Responsiva */}
-      <div className="relative w-full aspect-4/3 overflow-hidden bg-orange-50/50">
+      <div className="relative w-full aspect-4/3 overflow-hidden bg-orange-50/50 dark:bg-stone-800">
         <ResponsivePicture
           thumb={primaryImage?.urlThumb}
           card={primaryImage?.urlCard}
@@ -67,18 +69,30 @@ export default function PetCard({ pet }: PetCardProps) {
           alt={pet.title}
         />
 
-        {/* Badge de Tipo con colores cálidos */}
-        <div className="absolute top-3 left-3 z-10">
+        {/* Badges de Tipo & Urgencia con Colores Pasteles */}
+        <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5 max-w-[80%]">
           <span
             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black border shadow-xs backdrop-blur-md ${typeConfig.badgeColor}`}
           >
             {typeConfig.label}
           </span>
+
+          {pet.isUrgent && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-rose-200/95 text-rose-950 border border-rose-300 shadow-xs backdrop-blur-md animate-pulse">
+              🚨 Urgente
+            </span>
+          )}
+
+          {pet.ageGroup === "SENIOR" && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold bg-amber-200/95 text-amber-950 border border-amber-300 shadow-xs backdrop-blur-md">
+              👴 Viejito Senior
+            </span>
+          )}
         </div>
 
         {/* Refugio Verificado Badge */}
         {pet.user?.isVerifiedShelter && (
-          <div className="absolute top-3 right-3 z-10 bg-orange-500/90 text-white p-1.5 rounded-full shadow-xs backdrop-blur-sm" title="Refugio Verificado Patitas">
+          <div className="absolute top-3 right-3 z-10 bg-orange-400/90 text-white p-1.5 rounded-full shadow-xs backdrop-blur-sm" title="Refugio Verificado Patitas">
             <ShieldCheck className="w-4 h-4" />
           </div>
         )}
@@ -87,37 +101,45 @@ export default function PetCard({ pet }: PetCardProps) {
       {/* Contenido de la Tarjeta */}
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-stone-400 mb-1">
             <span>
               {SPECIES_LABELS[pet.species as Species] || pet.species} •{" "}
               {GENDER_LABELS[pet.gender as Gender] || pet.gender}
             </span>
             {pet.city && (
-              <span className="flex items-center gap-1 truncate max-w-[120px]">
+              <span className="flex items-center gap-1 truncate max-w-[130px]">
                 <MapPin className="w-3 h-3 text-orange-500 shrink-0" />
                 {pet.city}
               </span>
             )}
           </div>
 
-          <h3 className="font-extrabold text-base text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-1 mb-2">
+          <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-orange-500 transition-colors line-clamp-1 mb-2">
             {pet.title}
           </h3>
 
-          {/* Tags con tonalidades cálidas y amigables */}
+          {/* Condición Médica / Herida si existe */}
+          {pet.healthCondition && (
+            <div className="mb-3 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl text-[11px] font-semibold flex items-center gap-1.5">
+              <Stethoscope className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span className="truncate">Condición: {pet.healthCondition}</span>
+            </div>
+          )}
+
+          {/* Tags con tonalidades pasteles y amigables */}
           <div className="flex flex-wrap gap-1.5 mb-4">
             {pet.neutered && (
-              <span className="text-[11px] font-semibold bg-amber-50 text-amber-800 px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-200">
+              <span className="text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-200 dark:border-amber-800">
                 <Check className="w-3 h-3" /> Castrado/a
               </span>
             )}
             {pet.vaccinated && (
-              <span className="text-[11px] font-semibold bg-orange-50 text-orange-800 px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200">
+              <span className="text-[11px] font-semibold bg-orange-50 dark:bg-orange-950/60 text-orange-900 dark:text-orange-200 px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200 dark:border-orange-800">
                 <Check className="w-3 h-3" /> Vacunado/a
               </span>
             )}
             {pet.goodWithKids && (
-              <span className="text-[11px] font-semibold bg-rose-50 text-rose-800 px-2 py-0.5 rounded-md flex items-center gap-1 border border-rose-200">
+              <span className="text-[11px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 px-2 py-0.5 rounded-md flex items-center gap-1 border border-rose-200 dark:border-rose-800">
                 <Sparkles className="w-3 h-3 text-rose-500" /> Con Niños
               </span>
             )}
@@ -125,8 +147,8 @@ export default function PetCard({ pet }: PetCardProps) {
         </div>
 
         {/* Footer de Tarjeta con Call to Action */}
-        <div className="pt-3 border-t border-orange-50 flex items-center justify-between text-xs font-bold text-orange-600">
-          <span>{pet.type === "ADOPCION" ? "Conocer & Agendar Visita" : "Ver Ubicación (300m)"}</span>
+        <div className="pt-3 border-t border-orange-100 dark:border-stone-800 flex items-center justify-between text-xs font-bold text-orange-600 dark:text-orange-400">
+          <span>{pet.type === "ADOPCION" ? "Conocer & Agendar Visita" : "Ver Ubicación & Avisos"}</span>
           <span className="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </div>

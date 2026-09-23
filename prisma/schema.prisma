@@ -36,9 +36,19 @@ model UserAdoptionProfile {
   housingType      String   // "CASA_CON_PATIO_CERRADO", "DEPARTAMENTO_CON_BALCON", etc.
   hasYard          Boolean  @default(false)
   freeTimeHours    String   // e.g. "Más de 4 horas diarias", "Trabajo remoto"
-  householdMembers String   // integrantes
-  hasBabiesOrKids  Boolean  @default(false)
-  otherAnimals     String?  // si tiene otros animales y qué especie
+  
+  // Contadores estructurados de integrantes
+  womenCount       Int      @default(0)
+  menCount         Int      @default(0)
+  teensCount       Int      @default(0)
+  kidsCount        Int      @default(0)
+  babiesCount      Int      @default(0)
+
+  // Contadores de mascotas
+  dogsCount        Int      @default(0)
+  catsCount        Int      @default(0)
+  otherAnimals     String?  // Chips: "Conejos", "Aves", etc.
+
   experience       String?  // experiencia previa con mascotas
   
   createdAt        DateTime @default(now())
@@ -58,7 +68,9 @@ model Pet {
   size            String    // "PEQUENO", "MEDIANO", "GRANDE"
   color           String?
   
-  // Salud & cuidados
+  // Salud & urgencias
+  isUrgent        Boolean   @default(false) // Adopción urgente
+  healthCondition String?   // ej: "Le falta una patita", "Asma con medicación", "Ceguera parcial"
   vaccinated      Boolean   @default(false)
   dewormed        Boolean   @default(false)
   neutered        Boolean   @default(false) // Castrado
@@ -74,9 +86,9 @@ model Pet {
   contactPhone    String?
   
   // Sede o Refugio donde se encuentra
-  shelterLocation String?   @default("Refugio Patitas - Sede Central")
+  shelterLocation String?   @default("Refugio Patitas - Sede Montevideo")
 
-  // Ubicación para mapa y radio de 300m
+  // Ubicación para mapa y radio de 300m (Uruguay)
   latitude        Float?
   longitude       Float?
   address         String?
@@ -96,6 +108,18 @@ model Pet {
 
   images          PetImage[]
   applications    AdoptionApplication[]
+  comments        PetComment[]
+}
+
+model PetComment {
+  id          String   @id @default(cuid())
+  petId       String
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  authorName  String
+  authorPhone String?
+  location    String?  // Dónde lo vio o avistó
+  message     String
+  createdAt   DateTime @default(now())
 }
 
 model PetImage {
@@ -105,7 +129,7 @@ model PetImage {
   urlThumb    String   // 320w WebP
   urlCard     String   // 640w WebP
   urlDetail   String   // 1024w WebP
-  urlOriginal String   // 1600w WebP o máxima resolución
+  urlOriginal String   // 1600w WebP
   order       Int      @default(0)
   createdAt   DateTime @default(now())
 }
@@ -122,23 +146,29 @@ model AdoptionApplication {
   email            String
   phone            String
   
-  // Cuestionario de primera adopción / perfil
-  housingType      String   // "CASA_CON_PATIO", "DEPARTAMENTO", "FINCA", etc.
+  // Cuestionario de primera adopción
+  housingType      String
   hasYard          Boolean  @default(false)
-  freeTimeHours    String   // e.g. "4 a 6 horas", "trabajo remoto"
-  householdMembers String   // integrantes
-  hasBabiesOrKids  Boolean  @default(false)
-  otherAnimals     String?  // si tiene otros animales y qué especie
-  experience       String?  // experiencia previa con mascotas
-  notes            String?  // comentarios adicionales
+  freeTimeHours    String
+  
+  womenCount       Int      @default(0)
+  menCount         Int      @default(0)
+  teensCount       Int      @default(0)
+  kidsCount        Int      @default(0)
+  babiesCount      Int      @default(0)
+  dogsCount        Int      @default(0)
+  catsCount        Int      @default(0)
+  otherAnimals     String?
+  experience       String?
+  notes            String?
 
   // Calendario, Visita previa y Sede
   preferredDate    DateTime?
-  preferredTimeSlot String? // "Mañana (10:00 a 13:00)" / "Tarde (15:00 a 18:00)"
+  preferredTimeSlot String?
   isPreVisit       Boolean  @default(false)
-  shelterLocation  String?  @default("Refugio Patitas - Sede Central")
+  shelterLocation  String?  @default("Refugio Patitas - Sede Montevideo")
 
-  status           String   @default("EN_REVISION") // "ENVIADO", "EN_REVISION", "APROBADO", "RECHAZADO"
+  status           String   @default("EN_REVISION")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

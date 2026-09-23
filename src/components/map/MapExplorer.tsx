@@ -25,8 +25,8 @@ interface MapExplorerProps {
 
 export default function MapExplorer({
   pets,
-  centerLat = -34.6037,
-  centerLng = -58.3816,
+  centerLat = -34.9011, // Montevideo, Uruguay
+  centerLng = -56.1645,
   zoom = 13,
   height = "520px",
 }: MapExplorerProps) {

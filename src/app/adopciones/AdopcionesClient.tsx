@@ -17,6 +17,7 @@ export default function AdopcionesClient({ initialPets }: AdopcionesClientProps)
     goodWithKids: false,
     goodWithDogs: false,
     goodWithCats: false,
+    onlyUrgent: false,
     search: "",
   });
 
@@ -28,12 +29,14 @@ export default function AdopcionesClient({ initialPets }: AdopcionesClientProps)
       goodWithKids: false,
       goodWithDogs: false,
       goodWithCats: false,
+      onlyUrgent: false,
       search: "",
     });
   };
 
   const filteredPets = useMemo(() => {
     return initialPets.filter((pet) => {
+      if (filters.onlyUrgent && !pet.isUrgent && pet.ageGroup !== "SENIOR" && !pet.healthCondition) return false;
       if (filters.species && pet.species !== filters.species) return false;
       if (filters.size && pet.size !== filters.size) return false;
       if (filters.gender && pet.gender !== filters.gender) return false;

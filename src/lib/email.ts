@@ -78,8 +78,15 @@ interface AdoptionApplicationParams {
   housingType: string;
   hasYard: boolean;
   freeTimeHours: string;
-  householdMembers: string;
-  hasBabiesOrKids: boolean;
+  householdMembers?: string;
+  womenCount?: number;
+  menCount?: number;
+  teensCount?: number;
+  kidsCount?: number;
+  babiesCount?: number;
+  dogsCount?: number;
+  catsCount?: number;
+  hasBabiesOrKids?: boolean;
   otherAnimals?: string | null;
   experience?: string | null;
   notes?: string | null;
@@ -96,6 +103,13 @@ export async function sendAdoptionApplicationAlert(params: AdoptionApplicationPa
     hasYard,
     freeTimeHours,
     householdMembers,
+    womenCount = 0,
+    menCount = 0,
+    teensCount = 0,
+    kidsCount = 0,
+    babiesCount = 0,
+    dogsCount = 0,
+    catsCount = 0,
     hasBabiesOrKids,
     otherAnimals,
     experience,

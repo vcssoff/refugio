@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, AlertTriangle } from "lucide-react";
 import { SPECIES_LABELS, Species } from "@/lib/constants";
 
 export interface FilterState {
@@ -11,6 +11,7 @@ export interface FilterState {
   goodWithKids: boolean;
   goodWithDogs: boolean;
   goodWithCats: boolean;
+  onlyUrgent: boolean;
   search: string;
 }
 
@@ -39,6 +40,19 @@ export default function PetFilters({ filters, onChange, onReset }: PetFiltersPro
             className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50/20"
           />
         </div>
+
+        <button
+          type="button"
+          onClick={() => updateField("onlyUrgent", !filters.onlyUrgent)}
+          className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-2xl transition-all whitespace-nowrap self-end sm:self-auto ${
+            filters.onlyUrgent
+              ? "bg-rose-600 text-white shadow-md shadow-rose-500/25 ring-2 ring-rose-600"
+              : "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200"
+          }`}
+        >
+          <AlertTriangle className={`w-3.5 h-3.5 ${filters.onlyUrgent ? "text-white" : "text-rose-500"}`} />
+          {filters.onlyUrgent ? "✓ Filtrando Urgentes" : "🚨 Casos Urgentes & Viejitos"}
+        </button>
 
         <button
           type="button"

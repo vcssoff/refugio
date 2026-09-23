@@ -35,38 +35,46 @@ export async function POST(req: Request) {
       housingType,
       hasYard,
       freeTimeHours,
-      householdMembers,
-      hasBabiesOrKids,
+      womenCount,
+      menCount,
+      teensCount,
+      kidsCount,
+      babiesCount,
+      dogsCount,
+      catsCount,
       otherAnimals,
       experience,
     } = body;
 
-    if (!housingType || !freeTimeHours || !householdMembers) {
-      return NextResponse.json(
-        { error: "Por favor completa todos los campos requeridos del formulario" },
-        { status: 400 }
-      );
-    }
-
     const profile = await prisma.userAdoptionProfile.upsert({
       where: { userId: session.user.id },
       update: {
-        housingType,
+        housingType: housingType || "CASA_CON_PATIO_CERRADO",
         hasYard: Boolean(hasYard),
-        freeTimeHours,
-        householdMembers,
-        hasBabiesOrKids: Boolean(hasBabiesOrKids),
-        otherAnimals: otherAnimals || null,
+        freeTimeHours: freeTimeHours || "Más de 4 horas diarias",
+        womenCount: Number(womenCount) || 0,
+        menCount: Number(menCount) || 0,
+        teensCount: Number(teensCount) || 0,
+        kidsCount: Number(kidsCount) || 0,
+        babiesCount: Number(babiesCount) || 0,
+        dogsCount: Number(dogsCount) || 0,
+        catsCount: Number(catsCount) || 0,
+        otherAnimals: otherAnimals || "Ninguno",
         experience: experience || null,
       },
       create: {
         userId: session.user.id,
-        housingType,
+        housingType: housingType || "CASA_CON_PATIO_CERRADO",
         hasYard: Boolean(hasYard),
-        freeTimeHours,
-        householdMembers,
-        hasBabiesOrKids: Boolean(hasBabiesOrKids),
-        otherAnimals: otherAnimals || null,
+        freeTimeHours: freeTimeHours || "Más de 4 horas diarias",
+        womenCount: Number(womenCount) || 0,
+        menCount: Number(menCount) || 0,
+        teensCount: Number(teensCount) || 0,
+        kidsCount: Number(kidsCount) || 0,
+        babiesCount: Number(babiesCount) || 0,
+        dogsCount: Number(dogsCount) || 0,
+        catsCount: Number(catsCount) || 0,
+        otherAnimals: otherAnimals || "Ninguno",
         experience: experience || null,
       },
     });

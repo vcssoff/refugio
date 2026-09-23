@@ -34,6 +34,9 @@ export default async function PetDetailPage({ params }: PageProps) {
       images: {
         orderBy: { order: "asc" },
       },
+      comments: {
+        orderBy: { createdAt: "desc" },
+      },
       user: {
         select: {
           id: true,

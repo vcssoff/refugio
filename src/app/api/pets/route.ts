@@ -15,6 +15,7 @@ export async function GET(req: Request) {
     const goodWithKids = searchParams.get("goodWithKids");
     const goodWithDogs = searchParams.get("goodWithDogs");
     const goodWithCats = searchParams.get("goodWithCats");
+    const onlyUrgent = searchParams.get("onlyUrgent");
     const search = searchParams.get("search");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,6 +29,13 @@ export async function GET(req: Request) {
     if (goodWithKids === "true") where.goodWithKids = true;
     if (goodWithDogs === "true") where.goodWithDogs = true;
     if (goodWithCats === "true") where.goodWithCats = true;
+    if (onlyUrgent === "true") {
+      where.OR = [
+        { isUrgent: true },
+        { ageGroup: "SENIOR" },
+        { healthCondition: { not: null } },
+      ];
+    }
 
     if (search) {
       where.OR = [
@@ -83,6 +91,8 @@ export async function POST(req: Request) {
       dewormed,
       neutered,
       specialNeeds,
+      isUrgent,
+      healthCondition,
       goodWithDogs,
       goodWithCats,
       goodWithKids,
@@ -142,6 +152,8 @@ export async function POST(req: Request) {
         dewormed: Boolean(dewormed),
         neutered: Boolean(neutered),
         specialNeeds: specialNeeds || null,
+        isUrgent: Boolean(isUrgent),
+        healthCondition: healthCondition || null,
         goodWithDogs: Boolean(goodWithDogs),
         goodWithCats: Boolean(goodWithCats),
         goodWithKids: Boolean(goodWithKids),

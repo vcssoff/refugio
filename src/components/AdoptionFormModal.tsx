@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import HouseholdCounters, { HouseholdData } from "@/components/HouseholdCounters";
 import {
   X,
   Heart,
@@ -8,12 +9,9 @@ import {
   Loader2,
   Home,
   Clock,
-  Users,
   Calendar,
   MapPin,
   Sparkles,
-  Phone,
-  Mail,
   User,
 } from "lucide-react";
 import { HOUSING_OPTIONS } from "@/lib/constants";
@@ -40,30 +38,36 @@ export default function AdoptionFormModal({
   const [loadedSavedProfile, setLoadedSavedProfile] = useState(false);
 
   // Form State
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    housingType: HOUSING_OPTIONS[0].value,
-    hasYard: false,
-    freeTimeHours: "Más de 4 horas diarias",
-    householdMembers: "",
-    hasBabiesOrKids: false,
-    otherAnimals: "",
-    experience: "",
-    notes: "",
-    // Nuevos campos: Calendario, Turnos y Visita Previa
-    preferredDate: "",
-    preferredTimeSlot: "Tarde (15:00 a 18:00)",
-    isPreVisit: true, // true por defecto para fomentar la visita previa
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [housingType, setHousingType] = useState(HOUSING_OPTIONS[0].value);
+  const [hasYard, setHasYard] = useState(true);
+  const [freeTimeHours, setFreeTimeHours] = useState("Más de 4 horas diarias");
+  const [experience, setExperience] = useState("");
+  const [notes, setNotes] = useState("");
+
+  // Turno de Visita
+  const [preferredDate, setPreferredDate] = useState("");
+  const [preferredTimeSlot, setPreferredTimeSlot] = useState("Tarde (15:00 a 18:00)");
+  const [isPreVisit, setIsPreVisit] = useState(true);
+
+  // Integrantes y Mascotas con Contadores
+  const [household, setHousehold] = useState<HouseholdData>({
+    womenCount: 1,
+    menCount: 0,
+    teensCount: 0,
+    kidsCount: 0,
+    babiesCount: 0,
+    dogsCount: 0,
+    catsCount: 0,
+    otherAnimals: "Ninguno",
   });
 
-  // Fecha mínima para el calendario (a partir de mañana)
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDateStr = tomorrow.toISOString().split("T")[0];
 
-  // Cargar perfil guardado del usuario si existe
   useEffect(() => {
     if (!isOpen) return;
 
@@ -73,21 +77,25 @@ export default function AdoptionFormModal({
         if (res.ok) {
           const data = await res.json();
           if (data.profile) {
-            setFormData((prev) => ({
-              ...prev,
-              housingType: data.profile.housingType || prev.housingType,
-              hasYard: data.profile.hasYard ?? prev.hasYard,
-              freeTimeHours: data.profile.freeTimeHours || prev.freeTimeHours,
-              householdMembers: data.profile.householdMembers || prev.householdMembers,
-              hasBabiesOrKids: data.profile.hasBabiesOrKids ?? prev.hasBabiesOrKids,
-              otherAnimals: data.profile.otherAnimals || prev.otherAnimals,
-              experience: data.profile.experience || prev.experience,
-            }));
+            setHousingType(data.profile.housingType || HOUSING_OPTIONS[0].value);
+            setHasYard(data.profile.hasYard ?? true);
+            setFreeTimeHours(data.profile.freeTimeHours || "Más de 4 horas diarias");
+            setExperience(data.profile.experience || "");
+            setHousehold({
+              womenCount: data.profile.womenCount ?? 1,
+              menCount: data.profile.menCount ?? 0,
+              teensCount: data.profile.teensCount ?? 0,
+              kidsCount: data.profile.kidsCount ?? 0,
+              babiesCount: data.profile.babiesCount ?? 0,
+              dogsCount: data.profile.dogsCount ?? 0,
+              catsCount: data.profile.catsCount ?? 0,
+              otherAnimals: data.profile.otherAnimals || "Ninguno",
+            });
             setLoadedSavedProfile(true);
           }
         }
       } catch (err) {
-        console.warn("No se pudo cargar el perfil guardado:", err);
+        console.warn("No se pudo precargar el perfil:", err);
       }
     }
 
@@ -102,52 +110,62 @@ export default function AdoptionFormModal({
     setErrorMessage("");
 
     try {
+      const payload = {
+        fullName,
+        email,
+        phone,
+        housingType,
+        hasYard,
+        freeTimeHours,
+        experience,
+        notes,
+        preferredDate,
+        preferredTimeSlot,
+        isPreVisit,
+        shelterLocation: pet.shelterLocation || "Refugio Patitas - Sede Montevideo",
+        ...household,
+      };
+
       const res = await fetch(`/api/pets/${pet.id}/adopt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          shelterLocation: pet.shelterLocation || "Refugio Patitas - Sede Central",
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "No se pudo enviar la solicitud");
-      }
+      if (!res.ok) throw new Error(data.error || "No se pudo enviar la postulación");
 
       setIsSuccess(true);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMessage(err.message);
-      } else {
-        setErrorMessage("Ocurrió un error inesperado al procesar la solicitud");
-      }
+      if (err instanceof Error) setErrorMessage(err.message);
+      else setErrorMessage("Ocurrió un error inesperado");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const shelterName = pet.shelterLocation || "Refugio Patitas - Sede Central";
+  const shelterName = pet.shelterLocation || "Refugio Patitas - Sede Montevideo";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-orange-100 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-orange-100 dark:border-stone-800 overflow-hidden my-8">
         
-        {/* Header Cálido */}
-        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 px-6 py-5 text-white flex items-center justify-between">
+        {/* Header Pastel */}
+        <div className="bg-gradient-to-r from-orange-200 via-amber-200 to-rose-200 dark:from-stone-800 dark:to-stone-850 px-6 py-5 text-slate-800 dark:text-stone-100 flex items-center justify-between border-b border-orange-100 dark:border-stone-700">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/20 rounded-2xl backdrop-blur-md">
-              <Heart className="w-6 h-6 fill-white" />
+            <div className="p-2.5 bg-white/70 dark:bg-stone-700 rounded-2xl shadow-xs">
+              <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
             </div>
             <div>
-              <h2 className="text-lg font-bold">Solicitud de Adopción & Visita</h2>
-              <p className="text-orange-100 text-xs">Mascota: {pet.title}</p>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                Solicitud de Adopción & Visita Previa
+              </h2>
+              <p className="text-slate-600 dark:text-stone-300 text-xs">Mascota: {pet.title}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors"
+            className="p-1.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-slate-700 dark:text-stone-300 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,18 +173,18 @@ export default function AdoptionFormModal({
 
         {isSuccess ? (
           <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-black text-slate-800">¡Turno y Solicitud Registrada!</h3>
-            <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto">
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white">¡Visita Agendada y Solicitud Enviada!</h3>
+            <p className="text-slate-600 dark:text-stone-300 text-xs sm:text-sm max-w-md mx-auto">
               Hemos enviado tu postulación con el turno seleccionado a <strong>{pet.contactEmail}</strong> ({shelterName}).
-              El equipo de <strong>Refugio Patitas</strong> revisará tu información y te contactará por WhatsApp o correo para confirmar la visita.
+              Nos comunicaremos contigo a tu teléfono o WhatsApp uruguayo (<strong>{phone}</strong>) para coordinar la bienvenida.
             </p>
             <div className="pt-4">
               <button
                 onClick={onClose}
-                className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition-colors"
+                className="px-6 py-2.5 bg-orange-400 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition-colors"
               >
                 Cerrar y volver
               </button>
@@ -175,142 +193,150 @@ export default function AdoptionFormModal({
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
             {errorMessage && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs rounded-xl font-medium">
                 {errorMessage}
               </div>
             )}
 
             {/* Banner de Sede e Información */}
-            <div className="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-amber-900">
-              <MapPin className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+            <div className="bg-amber-50/70 dark:bg-stone-850 border border-amber-200/80 dark:border-stone-700 p-3.5 rounded-2xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+              <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
               <div>
-                <span className="block font-bold">Ubicación de la Mascota:</span>
-                <span>{shelterName}. Puedes coordinar un turno para conocerlo previamente.</span>
+                <span className="font-bold block">Ubicación física en Uruguay:</span>
+                <span>{shelterName}. Podrás conocer e interactuar con la mascota en el día elegido.</span>
               </div>
             </div>
 
             {loadedSavedProfile && (
-              <div className="bg-orange-50 border border-orange-200 p-3 rounded-2xl flex items-center gap-2 text-xs text-orange-900">
-                <Sparkles className="w-4 h-4 text-orange-600 shrink-0" />
-                <span>¡Genial! Hemos precargado tus datos guardados desde tu perfil de adoptante.</span>
+              <div className="bg-orange-50 dark:bg-stone-850 border border-orange-200 dark:border-stone-700 p-3 rounded-2xl flex items-center gap-2 text-xs text-orange-900 dark:text-orange-200">
+                <Sparkles className="w-4 h-4 text-orange-500 shrink-0" />
+                <span>¡Tus datos guardados de adoptante se han precargado automáticamente!</span>
               </div>
             )}
 
             {/* SECCIÓN 1: Calendario de Turnos y Visita Previa */}
-            <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="space-y-3 bg-orange-50/30 dark:bg-stone-850 p-4 rounded-2xl border border-orange-100 dark:border-stone-700">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-stone-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-orange-500" />
-                1. Días y Horarios Disponibles para Visita
+                1. Días y Horarios para Visita Previa
               </h4>
 
-              {/* Checkbox Visita Previa */}
-              <label className="flex items-start gap-2.5 p-3 rounded-xl border border-orange-200 bg-orange-50/60 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isPreVisit}
-                  onChange={(e) => setFormData({ ...formData, isPreVisit: e.target.checked })}
-                  className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500 mt-0.5"
-                />
-                <div className="text-xs">
-                  <strong className="text-orange-950 font-bold block">
-                    Quiero coordinar una Visita Previa
-                  </strong>
-                  <span className="text-orange-800">
-                    Visita al refugio para conocer e interactuar personalmente con la mascota antes de formalizar la adopción.
-                  </span>
-                </div>
-              </label>
+              {/* Botones de Selección Visita Previa */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setIsPreVisit(true)}
+                  className={`p-3 rounded-xl border text-center font-bold transition-all ${
+                    isPreVisit
+                      ? "border-rose-400 bg-rose-50 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 shadow-xs"
+                      : "border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-slate-600 dark:text-stone-300"
+                  }`}
+                >
+                  ⭐ Solicitar Visita Previa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPreVisit(false)}
+                  className={`p-3 rounded-xl border text-center font-bold transition-all ${
+                    !isPreVisit
+                      ? "border-amber-400 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 shadow-xs"
+                      : "border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-slate-600 dark:text-stone-300"
+                  }`}
+                >
+                  🐾 Adopción Directa
+                </button>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Día preferido de visita *
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">
+                    Día preferido *
                   </label>
                   <input
                     type="date"
                     required
                     min={minDateStr}
-                    value={formData.preferredDate}
-                    onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-orange-500"
+                    value={preferredDate}
+                    onChange={(e) => setPreferredDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Horario / Turno disponible *
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">
+                    Turno disponible *
                   </label>
                   <select
-                    value={formData.preferredTimeSlot}
-                    onChange={(e) => setFormData({ ...formData, preferredTimeSlot: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-orange-500"
+                    value={preferredTimeSlot}
+                    onChange={(e) => setPreferredTimeSlot(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs focus:ring-2 focus:ring-orange-400"
                   >
-                    <option value="Mañana (10:00 a 13:00)">Turno Mañana (10:00 a 13:00 hs)</option>
-                    <option value="Tarde (15:00 a 18:00)">Turno Tarde (15:00 a 18:00 hs)</option>
+                    <option value="Mañana (10:00 a 13:00)">Mañana (10:00 a 13:00 hs)</option>
+                    <option value="Tarde (15:00 a 18:00)">Tarde (15:00 a 18:00 hs)</option>
                     <option value="Sábado especial (11:00 a 16:00)">Sábado especial (11:00 a 16:00 hs)</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* SECCIÓN 2: Información Personal de Contacto */}
+            {/* SECCIÓN 2: Información Personal de Contacto (Uruguay) */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" /> 2. Tus Datos Personales de Contacto
+              <h4 className="text-xs font-bold text-slate-400 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" /> 2. Datos de Contacto (Uruguay)
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Nombre Completo *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Nombre Completo *</label>
                   <input
                     type="text"
                     required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     placeholder="Ej. Sofía Castillo"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Correo Electrónico *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Correo Electrónico *</label>
                   <input
                     type="email"
                     required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">Número de Teléfono / WhatsApp *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Celular / WhatsApp (Uruguay) *</label>
                   <input
                     type="tel"
                     required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+54 9 11 1234-5678"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+598 99 123 456"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
               </div>
             </div>
 
-            {/* SECCIÓN 3: Entorno y Vivienda */}
-            <div className="space-y-3 pt-2 border-t border-slate-100 text-xs">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Home className="w-3.5 h-3.5" /> 3. Tu Hogar y Familia
+            {/* SECCIÓN 3: Vivienda */}
+            <div className="space-y-3 pt-2 border-t border-orange-100 dark:border-stone-800 text-xs">
+              <h4 className="text-xs font-bold text-slate-400 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Home className="w-3.5 h-3.5" /> 3. Vivienda y Patio
               </h4>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tipo de Vivienda *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Tipo de Vivienda *</label>
                   <select
-                    value={formData.housingType}
-                    onChange={(e) => setFormData({ ...formData, housingType: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-orange-500"
+                    value={housingType}
+                    onChange={(e) => setHousingType(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   >
                     {HOUSING_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -318,57 +344,51 @@ export default function AdoptionFormModal({
                   </select>
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.hasYard}
-                    onChange={(e) => setFormData({ ...formData, hasYard: e.target.checked })}
-                    className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
-                  />
-                  <span className="font-medium text-slate-700">
-                    ¿La vivienda cuenta con patio o jardín cerrado con cerco seguro?
-                  </span>
-                </label>
-
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Integrantes de la casa *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.householdMembers}
-                    onChange={(e) => setFormData({ ...formData, householdMembers: e.target.value })}
-                    placeholder="Ej. Vivo sola / 2 adultos y 1 hijo"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
-                  />
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setHasYard(true)}
+                    className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all ${
+                      hasYard
+                        ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200"
+                        : "border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-slate-600 dark:text-stone-300"
+                    }`}
+                  >
+                    🌿 Con patio cerrado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHasYard(false)}
+                    className={`p-2.5 rounded-xl border text-center font-bold text-xs transition-all ${
+                      !hasYard
+                        ? "border-amber-500 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200"
+                        : "border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-slate-600 dark:text-stone-300"
+                    }`}
+                  >
+                    🏢 Sin patio cerrado
+                  </button>
                 </div>
-
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.hasBabiesOrKids}
-                    onChange={(e) => setFormData({ ...formData, hasBabiesOrKids: e.target.checked })}
-                    className="w-4 h-4 text-rose-500 rounded border-slate-300 focus:ring-rose-500"
-                  />
-                  <span className="font-medium text-slate-700">
-                    ¿Hay niños pequeños o bebés en el hogar?
-                  </span>
-                </label>
               </div>
             </div>
 
-            {/* SECCIÓN 4: Rutina y Mensaje */}
-            <div className="space-y-3 pt-2 border-t border-slate-100 text-xs">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" /> 4. Rutina y Otras Mascotas
+            {/* SECCIÓN 4: Integrantes y Mascotas con Contadores (+/-) */}
+            <div className="pt-2 border-t border-orange-100 dark:border-stone-800">
+              <HouseholdCounters data={household} onChange={setHousehold} />
+            </div>
+
+            {/* SECCIÓN 5: Rutina y Mensaje */}
+            <div className="space-y-3 pt-2 border-t border-orange-100 dark:border-stone-800 text-xs">
+              <h4 className="text-xs font-bold text-slate-400 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" /> 5. Rutina y Mensaje
               </h4>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tiempo libre diario *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Tiempo libre diario *</label>
                   <select
-                    value={formData.freeTimeHours}
-                    onChange={(e) => setFormData({ ...formData, freeTimeHours: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-orange-500"
+                    value={freeTimeHours}
+                    onChange={(e) => setFreeTimeHours(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   >
                     <option value="Trabajo remoto / Siempre alguien en casa">Trabajo remoto / Siempre alguien en casa</option>
                     <option value="Más de 4 horas diarias">Más de 4 horas diarias</option>
@@ -378,42 +398,31 @@ export default function AdoptionFormModal({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">¿Tienes otras mascotas?</label>
-                  <input
-                    type="text"
-                    value={formData.otherAnimals}
-                    onChange={(e) => setFormData({ ...formData, otherAnimals: e.target.value })}
-                    placeholder="Ej. 1 perra mestiza de 4 años castrada / Ninguno"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Mensaje para el refugio</label>
+                  <label className="block font-semibold text-slate-700 dark:text-stone-300 mb-1">Mensaje para el refugio</label>
                   <textarea
                     rows={2}
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
                     placeholder="Cuéntanos por qué deseas adoptar a esta mascota..."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Botones de Envío */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-orange-100 dark:border-stone-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-stone-400 hover:text-slate-800"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 disabled:bg-slate-400 text-white text-xs font-bold rounded-xl shadow-md shadow-orange-500/25 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400 hover:from-orange-500 hover:to-rose-500 disabled:opacity-50 text-white text-xs font-extrabold rounded-2xl shadow-xs transition-all"
               >
                 {isSubmitting ? (
                   <>
