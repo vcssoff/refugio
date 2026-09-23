@@ -61,15 +61,15 @@ export default function AdopcionesClient({ initialPets }: AdopcionesClientProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 uppercase tracking-wider mb-1">
-            <Heart className="w-3.5 h-3.5 fill-teal-600" />
-            Adopciones Responsables
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 uppercase tracking-wider mb-1">
+            <Heart className="w-3.5 h-3.5 fill-orange-500" />
+            Adopciones Responsables en Uruguay
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900">
+          <h1 className="text-3xl font-black text-[#2d2420]">
             Mascotas en Adopción
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Mostrando {filteredPets.length} de {initialPets.length} animales buscando familia
+          <p className="text-xs sm:text-sm text-[#63554b]">
+            Mostrando {filteredPets.length} de {initialPets.length} animales buscando familia amorosa
           </p>
         </div>
       </div>
@@ -85,19 +85,20 @@ export default function AdopcionesClient({ initialPets }: AdopcionesClientProps)
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 space-y-4 max-w-lg mx-auto">
-          <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl p-12 text-center border border-[#ede5da] space-y-4 max-w-lg mx-auto">
+          <div className="w-16 h-16 rounded-full bg-[#fbf5ec] text-orange-600 flex items-center justify-center mx-auto">
             <SearchX className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-slate-800">
+          <h3 className="text-base font-bold text-[#2d2420]">
             No encontramos mascotas con estos filtros
           </h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-500">
             Intenta cambiar los filtros de especie, tamaño o convivencia para ver más resultados.
           </p>
           <button
+            type="button"
             onClick={handleReset}
-            className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-colors"
+            className="min-h-[44px] px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-bold rounded-xl transition-all touch-manipulation cursor-pointer"
           >
             Restablecer todos los filtros
           </button>

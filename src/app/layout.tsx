@@ -20,7 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#fffdfa] text-stone-900 font-sans">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{document.documentElement.classList.remove('dark');localStorage.removeItem('theme');}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#fbf8f4] text-[#2d2420] font-sans">
         <SessionProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

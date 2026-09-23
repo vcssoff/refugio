@@ -2,13 +2,14 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #faf7f2;
-  --foreground: #292524;
+  /* Paleta Pastel Cálida Beige / Arena / Crema */
+  --background: #fbf8f4;
+  --foreground: #2d2420;
 }
 
-html.dark {
-  --background: #191614;
-  --foreground: #f5f0eb;
+html {
+  color-scheme: light !important;
+  background-color: var(--background);
 }
 
 body {
@@ -18,10 +19,11 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Fix z-index for Leaflet controls below custom fixed headers */
+/* Fix z-index for Leaflet controls */
 .leaflet-pane {
   z-index: 10 !important;
 }
@@ -31,55 +33,16 @@ body {
   z-index: 15 !important;
 }
 
-/* Dark mode overrides for common components */
-html.dark .bg-white {
-  background-color: #24201d !important;
-  color: #f5f0eb !important;
+/* Mejora táctil para todos los botones en móviles */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
 }
 
-html.dark .border-slate-100,
-html.dark .border-slate-200,
-html.dark .border-orange-50,
-html.dark .border-orange-100 {
-  border-color: #38322e !important;
-}
-
-html.dark .text-slate-900 {
-  color: #f5f0eb !important;
-}
-
-html.dark .text-slate-800 {
-  color: #e7e0d8 !important;
-}
-
-html.dark .text-slate-700 {
-  color: #d6cdc4 !important;
-}
-
-html.dark .text-slate-600,
-html.dark .text-slate-500 {
-  color: #aba197 !important;
-}
-
-html.dark .bg-slate-50,
-html.dark .bg-orange-50\/30,
-html.dark .bg-orange-50\/40,
-html.dark .bg-orange-50\/50,
-html.dark .bg-orange-50\/60,
-html.dark .bg-orange-50\/70,
-html.dark .bg-orange-50\/80,
-html.dark .bg-orange-50 {
-  background-color: #2a2522 !important;
-}
-
-html.dark .bg-slate-100 {
-  background-color: #332d29 !important;
-}
-
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background-color: #2a2522 !important;
-  color: #f5f0eb !important;
-  border-color: #443c37 !important;
+/* Asegurar que ningún elemento fuerce modo oscuro */
+html.dark {
+  color-scheme: light !important;
 }

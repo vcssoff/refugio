@@ -18,7 +18,6 @@ import {
   FileText,
   MapPin,
 } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,26 +40,26 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-orange-100/80 dark:border-stone-800 shadow-xs transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-[#fdfcf9]/95 backdrop-blur-md border-b border-[#eee7dd] shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo Rebrandeado: Refugio Patitas con colores cálidos */}
+          {/* Logo Refugio Patitas - Tonos Cálidos Pasteles */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-500 via-amber-500 to-rose-500 flex items-center justify-center text-white shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-400 to-rose-400 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
               <PawPrint className="w-5 h-5 fill-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-xl tracking-tight text-slate-900 dark:text-stone-100 group-hover:text-orange-600 transition-colors">
-                Refugio <span className="text-orange-500">Patitas</span>
+              <span className="font-black text-xl tracking-tight text-[#2d2420] group-hover:text-orange-600 transition-colors">
+                Refugio <span className="text-orange-600">Patitas</span>
               </span>
-              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 -mt-1 tracking-wide">
-                Amor en cuatro patas
+              <span className="text-[10px] font-bold text-amber-700 -mt-1 tracking-wide">
+                Amor en cuatro patas • Uruguay
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1.5">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const active = isActive(link.href);
@@ -68,15 +67,15 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                     link.highlight
-                      ? "text-orange-700 bg-orange-50/80 hover:bg-orange-100 border border-orange-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60"
+                      ? "text-orange-900 bg-orange-100/70 hover:bg-orange-100 border border-orange-200"
                       : active
-                      ? "text-orange-600 bg-orange-50 dark:bg-stone-800 dark:text-orange-400"
-                      : "text-slate-600 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-stone-800/60"
+                      ? "text-orange-700 bg-orange-50 border border-orange-200/60"
+                      : "text-[#4a3f35] hover:text-orange-700 hover:bg-[#f6eee4]"
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${link.highlight ? "text-orange-500" : ""}`} />
+                  <Icon className={`w-3.5 h-3.5 ${link.highlight ? "text-orange-600" : ""}`} />
                   {link.label}
                 </Link>
               );
@@ -85,10 +84,10 @@ export default function Navbar() {
             {canModerate && (
               <Link
                 href="/admin/solicitudes"
-                className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   pathname === "/admin/solicitudes"
-                    ? "text-rose-700 bg-rose-50 border border-rose-200"
-                    : "text-rose-600 hover:text-rose-700 hover:bg-rose-50/60"
+                    ? "text-rose-800 bg-rose-50 border border-rose-200"
+                    : "text-rose-700 hover:text-rose-900 hover:bg-rose-50"
                 }`}
               >
                 <Bell className="w-3.5 h-3.5" />
@@ -102,30 +101,28 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/publicar"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold rounded-xl shadow-md shadow-orange-500/20 hover:shadow-lg transition-all active:scale-98"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-98"
             >
               <PlusCircle className="w-4 h-4" />
               Publicar Mascota
             </Link>
 
-            {/* Theme Toggle (Modo Claro / Oscuro) */}
-            <ThemeToggle />
-
             {session?.user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-stone-700">
+              <div className="flex items-center gap-2 pl-2 border-l border-[#e4dcce]">
                 <Link
                   href="/perfil"
-                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-orange-50/50 dark:hover:bg-stone-800 transition-colors text-slate-700 dark:text-stone-200 text-xs font-semibold"
+                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-[#f6eee4] transition-colors text-[#3e342f] text-xs font-bold"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-orange-400 to-amber-300 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                     {session.user.name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <span className="max-w-[100px] truncate">{session.user.name || "Mi Cuenta"}</span>
                 </Link>
                 <button
+                  type="button"
                   onClick={() => signOut({ callbackUrl: "/" })}
                   title="Cerrar Sesión"
-                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors"
+                  className="p-2 text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -133,7 +130,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-stone-300 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-stone-800 rounded-xl transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#4a3f35] hover:text-orange-700 hover:bg-[#f6eee4] rounded-xl transition-colors border border-[#e4dcce]"
               >
                 <UserIcon className="w-3.5 h-3.5" />
                 Ingresar
@@ -141,22 +138,23 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile menu toggle & Quick action */}
           <div className="flex lg:hidden items-center gap-2">
-            <ThemeToggle />
             <Link
               href="/publicar"
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-lg shadow-xs"
+              className="inline-flex items-center gap-1 px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-xl shadow-xs active:scale-95 touch-manipulation"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              Publicar
+              <PlusCircle className="w-4 h-4" />
+              <span>Publicar</span>
             </Link>
+            
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-orange-50 transition-colors"
-              aria-label="Abrir menú"
+              className="w-10 h-10 rounded-xl bg-[#f5eee3] border border-[#e2d8c9] text-[#3e342f] flex items-center justify-center hover:bg-[#eee3d4] active:scale-95 transition-all touch-manipulation cursor-pointer"
+              aria-label="Abrir menú de navegación"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-stone-800" /> : <Menu className="w-5 h-5 text-stone-800" />}
             </button>
           </div>
         </div>
@@ -164,7 +162,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-orange-100 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-6 space-y-2 shadow-xl animate-in slide-in-from-top-2">
+        <div className="lg:hidden border-t border-[#eee7dd] bg-[#fbf9f5] px-4 pt-3 pb-6 space-y-2 shadow-xl animate-in slide-in-from-top-2">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const active = isActive(link.href);
@@ -173,14 +171,14 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold touch-manipulation active:scale-98 ${
                   active
-                    ? "text-orange-600 bg-orange-50 dark:bg-stone-800 dark:text-orange-400"
-                    : "text-slate-700 dark:text-stone-200 hover:bg-slate-50 dark:hover:bg-stone-800/60"
+                    ? "text-orange-700 bg-orange-100/60 border border-orange-200"
+                    : "text-[#3e342f] hover:bg-[#f4ebe0] active:bg-[#ede1d3]"
                 }`}
               >
-                <Icon className="w-4 h-4 text-orange-500" />
-                {link.label}
+                <Icon className="w-4 h-4 text-orange-500 shrink-0" />
+                <span>{link.label}</span>
               </Link>
             );
           })}
@@ -188,53 +186,54 @@ export default function Navbar() {
           <Link
             href="/perdidos?view=map"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-stone-200 hover:bg-slate-50 dark:hover:bg-stone-800/60"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[#3e342f] hover:bg-[#f4ebe0] active:bg-[#ede1d3] touch-manipulation"
           >
-            <MapPin className="w-4 h-4 text-orange-500" />
-            Mapa con Radio de 300m
+            <MapPin className="w-4 h-4 text-orange-500 shrink-0" />
+            <span>Mapa con Radio de 300m</span>
           </Link>
 
           {canModerate && (
             <Link
               href="/admin/solicitudes"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-700 bg-rose-50 dark:bg-rose-950/40 dark:text-rose-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-rose-800 bg-rose-50 border border-rose-200 touch-manipulation"
             >
-              <Bell className="w-4 h-4 text-rose-500" />
-              Bandeja de Solicitudes (Admin)
+              <Bell className="w-4 h-4 text-rose-500 shrink-0" />
+              <span>Bandeja de Solicitudes (Admin)</span>
             </Link>
           )}
 
-          <div className="pt-3 border-t border-slate-100">
+          <div className="pt-3 border-t border-[#eee7dd]">
             {session?.user ? (
               <div className="space-y-2">
                 <Link
                   href="/perfil"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700"
+                  className="flex items-center gap-3 px-4 py-3 text-xs font-bold text-[#3e342f] bg-white rounded-xl border border-[#eee7dd] touch-manipulation"
                 >
-                  <UserIcon className="w-4 h-4 text-orange-500" />
-                  Mi Cuenta ({session.user.name || session.user.email})
+                  <UserIcon className="w-4 h-4 text-orange-500 shrink-0" />
+                  <span>Mi Cuenta ({session.user.name || session.user.email})</span>
                 </Link>
                 <button
+                  type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     signOut({ callbackUrl: "/" });
                   }}
-                  className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-xs font-bold text-rose-700 bg-rose-50/70 hover:bg-rose-100 rounded-xl cursor-pointer touch-manipulation"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Cerrar Sesión
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <span>Cerrar Sesión</span>
                 </button>
               </div>
             ) : (
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-2.5 text-center font-bold text-orange-700 bg-orange-50 rounded-xl text-xs"
+                className="flex items-center justify-center gap-2 w-full py-3.5 text-center font-bold text-orange-900 bg-orange-100/70 hover:bg-orange-100 border border-orange-200 rounded-xl text-xs touch-manipulation shadow-xs"
               >
                 <UserIcon className="w-4 h-4" />
-                Iniciar Sesión / Registrarse
+                <span>Iniciar Sesión / Registrarse</span>
               </Link>
             )}
           </div>

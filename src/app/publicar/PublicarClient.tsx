@@ -191,20 +191,20 @@ export default function PublicarClient() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Encabezado */}
       <div>
-        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 uppercase tracking-wider mb-1">
-          <PawPrint className="w-3.5 h-3.5 text-teal-600" />
+        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 uppercase tracking-wider mb-1">
+          <PawPrint className="w-3.5 h-3.5 text-orange-600" />
           Nueva Publicación Solidaria
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900">
+        <h1 className="text-3xl font-black text-[#2d2420]">
           Publicar Mascota
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Completa los datos para dar en adopción o reportar un animal perdido / encontrado con mapa de radio 300m.
+        <p className="text-xs sm:text-sm text-[#63554b]">
+          Completa los datos para dar en adopción o reportar un animal perdido / encontrado con mapa de radio 300m en Uruguay.
         </p>
       </div>
 
       {errorMessage && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl flex items-center gap-2">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-900 text-xs font-semibold rounded-2xl flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -212,8 +212,8 @@ export default function PublicarClient() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Paso 1: Tipo de Publicación */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+        <div className="bg-white rounded-3xl p-6 border border-[#ede5da] shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-[#2d2420] uppercase tracking-wider">
             1. Selecciona el Tipo de Publicación
           </h2>
 
@@ -225,16 +225,16 @@ export default function PublicarClient() {
                   type="button"
                   key={t}
                   onClick={() => setType(t)}
-                  className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                  className={`p-4 rounded-2xl border-2 text-left transition-all active:scale-95 touch-manipulation cursor-pointer ${
                     active
-                      ? "border-teal-600 bg-teal-50/60 ring-2 ring-teal-500/20"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-orange-500 bg-orange-50/80 ring-2 ring-orange-400/30"
+                      : "border-[#ded5c7] hover:border-orange-300 bg-white"
                   }`}
                 >
-                  <span className="block font-bold text-sm text-slate-900 mb-1">
+                  <span className="block font-bold text-sm text-[#2d2420] mb-1">
                     {TYPE_LABELS[t].label}
                   </span>
-                  <span className="text-[11px] text-slate-500 block leading-tight">
+                  <span className="text-[11px] text-[#63554b] block leading-tight">
                     {TYPE_LABELS[t].description}
                   </span>
                 </button>
@@ -595,7 +595,7 @@ export default function PublicarClient() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:bg-slate-400 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 text-base transition-all active:scale-98"
+            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg shadow-orange-500/20 text-base transition-all active:scale-95 touch-manipulation cursor-pointer"
           >
             {isSubmitting ? (
               <>
