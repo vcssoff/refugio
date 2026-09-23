@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐾 Refugio - Plataforma Comunitaria de Adopción y Búsqueda
 
-## Getting Started
+Plataforma fullstack moderna construida con **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Prisma ORM**, **Leaflet + OpenStreetMap** y **Resend**.
 
-First, run the development server:
+Optimizada para **costo cero en infraestructura** y alto impacto social y de rescate animal.
 
+---
+
+## 🚀 Características Principales
+
+1. **Catálogo de Adopciones Responsables:**
+   - Filtros facetados en tiempo real por especie (Perro, Gato, Otros), tamaño, edad, género y compatibilidad con niños, perros y gatos.
+   - Fichas detalladas con galería fotográfica adaptable.
+
+2. **Cuestionario de Adopción Primeriza:**
+   - Formulario que evalúa tipo de vivienda, si cuenta con patio cerrado, integrantes de la casa (bebés/niños), tiempo libre y experiencia previa.
+   - Envío automático de la postulación al correo electrónico del refugio o rescatista mediante **Resend**.
+
+3. **Mascotas Perdidas y Encontradas con Mapa de 300 Metros:**
+   - Mapa interactivo con **Leaflet + OpenStreetMap** (100% gratuito, sin límites ni claves API de Google).
+   - Visualización y selector de radio de **300 metros** alrededor del último punto de avistamiento.
+
+4. **Pipeline de Fotos WebP en Cliente (0 Costo en Vercel):**
+   - Las fotos se convierten y redimensionan en el navegador del usuario a **WebP en 4 resoluciones** (320px, 640px, 1024px, 1600px).
+   - Renderizado con la etiqueta nativa `<picture>` y `<img loading="lazy" srcset="...">`.
+   - **0 consumo de la cuota de optimización de imágenes de Vercel**.
+
+5. **Sistema de Moderación Comunitaria:**
+   - Todas las publicaciones nuevas entran en estado `PENDIENTE_MODERACION`.
+   - El dueño del sitio (`ADMIN`) y los rescatistas verificados (`REFUGIO`) pueden aprobar o rechazar publicaciones desde el panel `/moderacion`.
+   - Notificación por correo al administrador cuando entra una nueva publicación.
+
+6. **Autenticación y Roles:**
+   - Soporte para inicio de sesión con Credenciales (Email + Contraseña con hash bcrypt) y Google OAuth.
+   - Roles definidos: `ADMIN`, `REFUGIO` (Verificado), `USUARIO`.
+
+---
+
+## 🛠️ Instalación y Ejecución Local
+
+### 1. Clonar e Instalar Dependencias
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configurar Variables de Entorno
+Copia el archivo `.env.example` a `.env`:
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*(En desarrollo local ya viene configurado para usar SQLite `file:./dev.db` sin necesidad de instalar Postgres localmente).*
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Crear Base de Datos y Cargar Datos de Prueba
+```bash
+npx prisma db push
+npm run db:seed
+```
 
-## Learn More
+### 4. Iniciar el Servidor de Desarrollo
+```bash
+npm run dev
+```
+Abre en tu navegador: [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 👤 Cuentas Demo de Prueba (Sembradas en `db:seed`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Para probar los diferentes roles con un solo clic:
+* **Administrador (Acceso total y moderación):**
+  * Email: `admin@refugio.com`
+  * Contraseña: `admin123`
+* **Refugio Verificado (Aprobación comunitaria de publicaciones):**
+  * Email: `refugio@huellas.org`
+  * Contraseña: `refugio123`
+* **Usuario Adoptante:**
+  * Email: `usuario@ejemplo.com`
+  * Contraseña: `usuario123`
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ☁️ Despliegue en GitHub y Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Paso 1: Subir a tu GitHub
+```bash
+git add .
+git commit -m "feat: initial commit of Refugio platform"
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/refugio.git
+git push -u origin main
+```
+
+### Paso 2: Importar en Vercel
+1. Ve a [vercel.com](https://vercel.com) y selecciona **Add New Project**.
+2. Importa tu repositorio `refugio`.
+3. En la pestaña **Storage** de Vercel:
+   - Añade una base de datos **Postgres** (Neon gratuito). Esto inyectará automáticamente `DATABASE_URL` y `POSTGRES_PRISMA_URL`.
+   - Añade un almacenamiento **Blob** (para almacenar las imágenes WebP). Esto inyectará `BLOB_READ_WRITE_TOKEN`.
+4. En **Environment Variables**, configura:
+   - `NEXTAUTH_SECRET`: una clave secreta segura (genera con `openssl rand -base64 32`).
+   - `NEXTAUTH_URL`: la URL de tu proyecto en Vercel (ej. `https://refugio.vercel.app`).
+   - `ADMIN_EMAIL`: tu correo electrónico para recibir las alertas de moderación.
+   - `RESEND_API_KEY`: tu clave API gratuita de [resend.com](https://resend.com).
+   - `RESEND_FROM_EMAIL`: `onboarding@resend.dev` (o tu dominio verificado).
+5. En `prisma/schema.prisma`, cambia `provider = "sqlite"` a `provider = "postgresql"`.
+6. En Vercel, agrega el comando de build o ejecuta `npx prisma db push` en el primer deploy.
+
+---
+
+## 📄 Licencia y Misión
+Desarrollado con pasión para salvar vidas y conectar animales rescatados con familias para siempre.

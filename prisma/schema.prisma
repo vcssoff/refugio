@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String?
+  email             String    @unique
+  emailVerified     DateTime?
+  password          String?
+  image             String?
+  role              String    @default("USUARIO") // "ADMIN", "REFUGIO", "USUARIO"
+  isVerifiedShelter Boolean   @default(false)
+  shelterName       String?
+  phone             String?
+  city              String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  pets              Pet[]
+  applications      AdoptionApplication[]
+  moderatedPets     Pet[]     @relation("ModeratedBy")
+}
+
+model Pet {
+  id              String    @id @default(cuid())
+  title           String
+  type            String    // "ADOPCION", "PERDIDO", "ENCONTRADO"
+  status          String    @default("PENDIENTE_MODERACION") // "PENDIENTE_MODERACION", "PUBLICADO", "RECHAZADO", "ADOPTADO", "REUNIDO"
+  species         String    // "PERRO", "GATO", "OTRO"
+  otherSpecies    String?
+  name            String?
+  gender          String    // "MACHO", "HEMBRA", "DESCONOCIDO"
+  ageGroup        String    // "CACHORRO", "JOVEN", "ADULTO", "SENIOR"
+  size            String    // "PEQUENO", "MEDIANO", "GRANDE"
+  color           String?
+  
+  // Salud & cuidados
+  vaccinated      Boolean   @default(false)
+  dewormed        Boolean   @default(false)
+  neutered        Boolean   @default(false) // Castrado
+  specialNeeds    String?
+
+  // Convivencia y temperamento
+  goodWithDogs    Boolean   @default(false)
+  goodWithCats    Boolean   @default(false)
+  goodWithKids    Boolean   @default(false)
+
+  description     String
+  contactEmail    String
+  contactPhone    String?
+  
+  // Ubicación para mapa y radio de 300m
+  latitude        Float?
+  longitude       Float?
+  address         String?
+  city            String?
+  lostOrFoundDate DateTime?
+
+  // Moderación
+  moderationNote  String?
+  reviewedById    String?
+  reviewedBy      User?     @relation("ModeratedBy", fields: [reviewedById], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  images          PetImage[]
+  applications    AdoptionApplication[]
+}
+
+model PetImage {
+  id          String   @id @default(cuid())
+  petId       String
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  urlThumb    String   // 320w WebP
+  urlCard     String   // 640w WebP
+  urlDetail   String   // 1024w WebP
+  urlOriginal String   // 1600w WebP o máxima resolución
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model AdoptionApplication {
+  id               String   @id @default(cuid())
+  petId            String
+  pet              Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  
+  applicantId      String?
+  applicant        User?    @relation(fields: [applicantId], references: [id])
+
+  fullName         String
+  email            String
+  phone            String
+  
+  // Cuestionario de primera adopción
+  housingType      String   // "CASA_CON_PATIO", "DEPARTAMENTO", "FINCA", etc.
+  hasYard          Boolean  @default(false)
+  freeTimeHours    String   // e.g. "4 a 6 horas", "trabajo remoto"
+  householdMembers String   // integrantes
+  hasBabiesOrKids  Boolean  @default(false)
+  otherAnimals     String?  // si tiene otros animales y qué especie
+  experience       String?  // experiencia previa con mascotas
+  notes            String?  // comentarios adicionales
+
+  status           String   @default("EN_REVISION") // "ENVIADO", "EN_REVISION", "APROBADO", "RECHAZADO"
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
