@@ -326,13 +326,13 @@ export default function PetDetailClient({ pet }: PetDetailClientProps) {
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <button
                   onClick={() => setIsAdoptionModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 text-base transition-all active:scale-98"
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/25 text-base transition-all active:scale-98"
                 >
                   <Heart className="w-5 h-5 fill-white" />
                   Quiero Adoptar a {pet.name || "esta Mascota"}
                 </button>
                 <p className="text-[11px] text-slate-500 text-center">
-                  Completarás un cuestionario responsable que se enviará automáticamente al correo del refugio.
+                  Podrás agendar un día y horario para visitarlo previamente en el refugio.
                 </p>
               </div>
             ) : (
@@ -358,9 +358,9 @@ export default function PetDetailClient({ pet }: PetDetailClientProps) {
               <div className="space-y-2">
                 <a
                   href={`mailto:${pet.contactEmail}?subject=Consulta%20sobre%20${encodeURIComponent(pet.title)}`}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 hover:bg-teal-50 text-slate-800 hover:text-teal-800 border border-slate-200 transition-colors text-xs font-semibold"
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 hover:bg-orange-50 text-slate-800 hover:text-orange-900 border border-slate-200 transition-colors text-xs font-semibold"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="truncate">
@@ -371,7 +371,7 @@ export default function PetDetailClient({ pet }: PetDetailClientProps) {
 
                 {pet.contactPhone && (
                   <a
-                    href={`https://wa.me/${pet.contactPhone.replace(/[^0-9]/g, "")}?text=Hola,%20te%20escribo%20por%20la%20publicaci%C3%B3n%20en%20Refugio:%20${encodeURIComponent(pet.title)}`}
+                    href={`https://wa.me/${pet.contactPhone.replace(/[^0-9]/g, "")}?text=Hola,%20te%20escribo%20por%20la%20publicaci%C3%B3n%20en%20Refugio%20Patitas:%20${encodeURIComponent(pet.title)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 transition-colors text-xs font-semibold"
@@ -388,10 +388,10 @@ export default function PetDetailClient({ pet }: PetDetailClientProps) {
               </div>
 
               {pet.user?.isVerifiedShelter && (
-                <div className="flex items-center gap-2 p-3 bg-teal-50/70 border border-teal-200 rounded-2xl text-xs text-teal-900">
-                  <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0" />
+                <div className="flex items-center gap-2 p-3 bg-orange-50/70 border border-orange-200 rounded-2xl text-xs text-orange-950">
+                  <ShieldCheck className="w-4 h-4 text-orange-600 shrink-0" />
                   <span>
-                    Publicado por <strong>{pet.user.shelterName || "Refugio Verificado"}</strong>. Cuenta respaldada por nuestra comunidad.
+                    Publicado por <strong>{pet.user.shelterName || "Refugio Patitas Verificado"}</strong>.
                   </span>
                 </div>
               )}
@@ -403,7 +403,12 @@ export default function PetDetailClient({ pet }: PetDetailClientProps) {
 
       {/* Modal Cuestionario de Adopción */}
       <AdoptionFormModal
-        pet={{ id: pet.id, title: pet.title, contactEmail: pet.contactEmail }}
+        pet={{
+          id: pet.id,
+          title: pet.title,
+          contactEmail: pet.contactEmail,
+          shelterLocation: pet.shelterLocation || pet.user?.shelterName || "Refugio Patitas - Sede Central",
+        }}
         isOpen={isAdoptionModalOpen}
         onClose={() => setIsAdoptionModalOpen(false)}
       />

@@ -5,9 +5,9 @@ import Footer from "@/components/Footer";
 import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "Refugio - Adopción Responsable y Mascotas Perdidas",
+  title: "Refugio Patitas - Adopción Responsable, Visitas y Búsqueda Comunitaria",
   description:
-    "Encuentra a tu nuevo mejor amigo o reporta una mascota perdida con nuestro mapa comunitario con radio de 300 metros. Publicaciones moderadas y seguras.",
+    "Descubre a tu compañero ideal con nuestro test de afinidad, agenda visitas previas y reporta mascotas perdidas en el mapa interactivo de 300 metros. Comunidad Refugio Patitas.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <body className="min-h-full flex flex-col bg-[#fffdfa] text-stone-900 font-sans">
         <SessionProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

@@ -11,6 +11,8 @@ import {
   Zap,
   ArrowRight,
   Sparkles,
+  Calendar,
+  FileText,
 } from "lucide-react";
 
 export const revalidate = 0; // SSR dinámico
@@ -47,92 +49,125 @@ async function getFeaturedPets() {
       where: { type: "ADOPCION" },
     });
 
-    const totalReunited = await prisma.pet.count({
-      where: { status: "REUNIDO" },
-    });
-
-    return { adoptionPets, lostPets, totalAdoptions, totalReunited };
+    return { adoptionPets, lostPets, totalAdoptions };
   } catch (error) {
-    console.error("Error al cargar mascotas destacadas:", error);
-    return { adoptionPets: [], lostPets: [], totalAdoptions: 0, totalReunited: 0 };
+    console.error("Error al cargar datos en Home:", error);
+    return { adoptionPets: [], lostPets: [], totalAdoptions: 0 };
   }
 }
 
 export default async function HomePage() {
-  const { adoptionPets, lostPets, totalAdoptions, totalReunited } = await getFeaturedPets();
+  const { adoptionPets, lostPets, totalAdoptions } = await getFeaturedPets();
 
   return (
     <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/70 via-white to-slate-50 pt-12 pb-20 border-b border-slate-100">
+      {/* Hero Section Cálido */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-amber-100/60 via-orange-50/40 to-[#fffdfa] pt-12 pb-20 border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-100/70 text-teal-800 text-xs font-bold tracking-wide uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-              Plataforma Solidaria de Adopción y Búsqueda
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-900 text-xs font-bold tracking-wide uppercase shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+              Bienvenidos a Refugio Patitas
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">
               Cada huella merece un hogar, <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500">
                 cada familia un reencuentro.
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-              Conectamos animales rescatados con adoptantes responsables y activamos alertas de mascotas perdidas con un mapa interactivo de <strong>radio de 300 metros</strong>.
+              Conectamos animales rescatados con familias compatibles, coordinamos <strong>visitas previas con turnos</strong> y activamos alertas de mascotas perdidas con mapa de <strong>radio de 300 metros</strong>.
             </p>
 
-            {/* Botones de Acción Rápida */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            {/* Botones de Acción Rápida con Tonos Cálidos */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+              <Link
+                href="/mascota-ideal"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/25 transition-all text-sm active:scale-98"
+              >
+                <Sparkles className="w-4 h-4" />
+                Test "Mi Mascota Ideal"
+              </Link>
               <Link
                 href="/adopciones"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/25 transition-all text-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-orange-50/50 text-slate-800 font-bold rounded-2xl border border-orange-200 shadow-xs transition-all text-sm"
               >
-                <Heart className="w-4 h-4 fill-white" />
-                Quiero Adoptar
+                <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                Ver Adopciones
               </Link>
               <Link
                 href="/perdidos"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-2xl border border-slate-200 shadow-sm transition-all text-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-rose-50/50 text-slate-800 font-bold rounded-2xl border border-rose-200 shadow-xs transition-all text-sm"
               >
-                <Compass className="w-4 h-4 text-rose-500" />
-                Perdidos y Encontrados
-              </Link>
-              <Link
-                href="/publicar"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold rounded-2xl transition-all text-sm"
-              >
-                <PlusCircle className="w-4 h-4 text-amber-600" />
-                Publicar Mascota
+                <Compass className="w-4 h-4 text-rose-600" />
+                Perdidos (Radio 300m)
               </Link>
             </div>
 
-            {/* Métricas y Estadísticas */}
-            <div className="pt-8 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl mx-auto text-center border-t border-slate-200/60 mt-8">
+            {/* Accesos rápidos secundarios */}
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs font-bold text-slate-600">
+              <Link href="/mi-formulario" className="hover:text-orange-600 flex items-center gap-1.5 transition-colors">
+                <FileText className="w-3.5 h-3.5 text-orange-500" />
+                Mi Formulario de Adoptante
+              </Link>
+              <span className="text-slate-300">•</span>
+              <Link href="/publicar" className="hover:text-orange-600 flex items-center gap-1.5 transition-colors">
+                <PlusCircle className="w-3.5 h-3.5 text-amber-500" />
+                Publicar Mascota para Admisión
+              </Link>
+            </div>
+
+            {/* Métricas Cálidas */}
+            <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl mx-auto text-center border-t border-orange-200/60 mt-8">
               <div>
-                <span className="block text-2xl font-black text-teal-700">
+                <span className="block text-2xl font-black text-orange-600">
                   {Math.max(totalAdoptions, 120)}+
                 </span>
-                <span className="text-xs text-slate-500 font-medium">Mascotas en Adopción</span>
+                <span className="text-xs text-slate-500 font-medium">Patitas en Adopción</span>
               </div>
               <div>
-                <span className="block text-2xl font-black text-emerald-600">300m</span>
+                <span className="block text-2xl font-black text-amber-600">300m</span>
                 <span className="text-xs text-slate-500 font-medium">Radio de Búsqueda Local</span>
               </div>
               <div className="col-span-2 sm:col-span-1">
-                <span className="block text-2xl font-black text-slate-800">100%</span>
-                <span className="text-xs text-slate-500 font-medium">Moderado y Gratuito</span>
+                <span className="block text-2xl font-black text-rose-600">100%</span>
+                <span className="text-xs text-slate-500 font-medium">Admitido por Admin</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Banner Destacado: Test Mi Mascota Ideal */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 rounded-3xl p-8 text-white shadow-xl shadow-orange-500/15 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> Nuevo en Refugio Patitas
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black">
+              ¿No sabes qué mascota se adapta mejor a tu vida?
+            </h2>
+            <p className="text-orange-100 text-xs sm:text-sm max-w-xl">
+              Haz nuestro test de afinidad en 1 minuto. Evaluamos tu tiempo libre, tipo de casa, presencia de niños y rutina para mostrarte tus matches ideales.
+            </p>
+          </div>
+
+          <Link
+            href="/mascota-ideal"
+            className="px-6 py-3.5 bg-white hover:bg-orange-50 text-orange-600 font-black rounded-2xl text-xs uppercase tracking-wider shadow-md transition-all shrink-0 active:scale-98"
+          >
+            Comenzar Test Gratis →
+          </Link>
+        </div>
+      </section>
+
       {/* Alertas Urgentes: Mascotas Perdidas y Encontradas */}
       {lostPets.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-rose-50/60 border border-rose-200/80 rounded-3xl p-6 sm:p-8">
+          <div className="bg-rose-50/70 border border-rose-200 rounded-3xl p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
                 <div className="flex items-center gap-2 text-rose-600 text-xs font-bold uppercase tracking-wider mb-1">
@@ -177,21 +212,21 @@ export default async function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2 text-teal-600 text-xs font-bold uppercase tracking-wider mb-1">
-              <Heart className="w-3.5 h-3.5 fill-teal-600" />
+            <div className="flex items-center gap-2 text-orange-600 text-xs font-bold uppercase tracking-wider mb-1">
+              <Heart className="w-3.5 h-3.5 fill-orange-500" />
               Adopción Responsable
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
               Esperan por una familia que los ame
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm">
-              Cada uno cuenta con historia, control veterinario y ficha de temperamento.
+              Agenda una visita previa para conocerlos en persona en la sede de Refugio Patitas.
             </p>
           </div>
 
           <Link
             href="/adopciones"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold rounded-xl border border-teal-200 transition-colors"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs font-bold rounded-xl border border-orange-200 transition-colors"
           >
             Explorar todas las adopciones <ArrowRight className="w-4 h-4" />
           </Link>
@@ -204,17 +239,17 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mx-auto">
+          <div className="bg-white rounded-3xl p-12 text-center border border-orange-100 space-y-4">
+            <div className="w-16 h-16 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mx-auto">
               <Heart className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-bold text-slate-800">Sé el primero en publicar una mascota</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Ayuda a un animal abandonado publicando su ficha. Se someterá a moderación rápida para asegurar la calidad.
+              Ayuda a un animal abandonado. La publicación será admitida rápidamente por los administradores.
             </p>
             <Link
               href="/publicar"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-orange-600 transition-colors"
             >
               <PlusCircle className="w-4 h-4" /> Publicar Mascota Ahora
             </Link>
@@ -222,36 +257,36 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Pilares de Confianza y Calidad */}
+      {/* Pilares de Refugio Patitas */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center">
+          <div className="bg-white rounded-3xl p-6 border border-orange-100 shadow-xs flex flex-col gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">Visitas Previas con Turno</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Selecciona el día y horario que mejor te convenga para conocer e interactuar con la mascota antes de formalizar la adopción.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 border border-orange-100 shadow-xs flex flex-col gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+              <FileText className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">Formulario Reutilizable</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Guarda tus datos de vivienda y estilo de vida una vez. Puedes rehacer o editar tu formulario en cualquier momento desde tu perfil.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xs flex flex-col gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Moderación y Seguridad</h3>
+            <h3 className="font-bold text-slate-900 text-base">Admisión y Seguridad Total</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Todas las publicaciones son revisadas por el administrador o refugios autorizados para evitar publicaciones falsas o comercio no ético.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <Heart className="w-5 h-5 fill-emerald-600" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Formulario de Adopción Responsable</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Al postularte, el refugio recibe un informe completo sobre tu vivienda, patio, integrantes de la casa y tiempo disponible para asegurar una adopción para siempre.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center">
-              <Zap className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Carga Ultrarrápida en WebP</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Las fotos se comprimen y adaptan en tu navegador a 4 resoluciones WebP, ofreciendo máxima velocidad y nitidez en cualquier teléfono sin costos extras.
+              Cada publicación recibida es validada por los administradores de Refugio Patitas en su bandeja de solicitudes para evitar fraudes.
             </p>
           </div>
         </div>

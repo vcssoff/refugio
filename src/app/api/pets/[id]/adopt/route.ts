@@ -24,6 +24,10 @@ export async function POST(
       otherAnimals,
       experience,
       notes,
+      preferredDate,
+      preferredTimeSlot,
+      isPreVisit,
+      shelterLocation,
     } = body;
 
     if (!fullName || !email || !phone || !housingType || !freeTimeHours || !householdMembers) {
@@ -49,11 +53,39 @@ export async function POST(
       );
     }
 
-    // Guardar la postulación en la base de datos
+    const applicantId = session?.user?.id || null;
+
+    // Si el usuario está registrado, guardamos/actualizamos su perfil de adoptante
+    if (applicantId) {
+      await prisma.userAdoptionProfile.upsert({
+        where: { userId: applicantId },
+        update: {
+          housingType,
+          hasYard: Boolean(hasYard),
+          freeTimeHours,
+          householdMembers,
+          hasBabiesOrKids: Boolean(hasBabiesOrKids),
+          otherAnimals: otherAnimals || null,
+          experience: experience || null,
+        },
+        create: {
+          userId: applicantId,
+          housingType,
+          hasYard: Boolean(hasYard),
+          freeTimeHours,
+          householdMembers,
+          hasBabiesOrKids: Boolean(hasBabiesOrKids),
+          otherAnimals: otherAnimals || null,
+          experience: experience || null,
+        },
+      });
+    }
+
+    // Guardar la postulación con fecha de visita y horario
     const application = await prisma.adoptionApplication.create({
       data: {
         petId: id,
-        applicantId: session?.user?.id || null,
+        applicantId,
         fullName,
         email,
         phone,
@@ -65,6 +97,10 @@ export async function POST(
         otherAnimals: otherAnimals || null,
         experience: experience || null,
         notes: notes || null,
+        preferredDate: preferredDate ? new Date(preferredDate) : null,
+        preferredTimeSlot: preferredTimeSlot || "Mañana (10:00 a 13:00)",
+        isPreVisit: Boolean(isPreVisit),
+        shelterLocation: shelterLocation || pet.shelterLocation || "Refugio Patitas - Sede Central",
         status: "ENVIADO",
       },
     });
@@ -84,7 +120,9 @@ export async function POST(
       hasBabiesOrKids: Boolean(hasBabiesOrKids),
       otherAnimals,
       experience,
-      notes,
+      notes: `${isPreVisit ? "⭐ SOLICITA VISITA PREVIA. " : ""}${
+        preferredDate ? `Turno solicitado: ${new Date(preferredDate).toLocaleDateString("es-AR")} - ${preferredTimeSlot}. ` : ""
+      }${notes || ""}`,
       shelterEmail,
     });
 

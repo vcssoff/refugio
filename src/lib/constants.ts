@@ -23,17 +23,17 @@ export const SPECIES_LABELS: Record<Species, string> = {
 export const TYPE_LABELS: Record<PetType, { label: string; badgeColor: string; description: string }> = {
   ADOPCION: {
     label: "En Adopción",
-    badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    badgeColor: "bg-amber-100 text-amber-900 border-amber-300",
     description: "Busca un hogar responsable y cariñoso",
   },
   PERDIDO: {
     label: "Mascota Perdida",
-    badgeColor: "bg-rose-100 text-rose-800 border-rose-300",
+    badgeColor: "bg-rose-100 text-rose-900 border-rose-300",
     description: "Su familia lo está buscando desesperadamente",
   },
   ENCONTRADO: {
     label: "Mascota Encontrada",
-    badgeColor: "bg-amber-100 text-amber-800 border-amber-300",
+    badgeColor: "bg-orange-100 text-orange-900 border-orange-300",
     description: "Fue hallado y se busca a su familia original",
   },
 };

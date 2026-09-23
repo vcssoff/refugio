@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { PawPrint, Heart, Shield, MapPin, Mail } from "lucide-react";
+import { PawPrint, Heart, Shield, MapPin, Mail, Sparkles, FileText } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -10,49 +10,49 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center text-white">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
                 <PawPrint className="w-5 h-5 fill-white" />
               </div>
-              <span className="font-extrabold text-xl text-white">Refugio</span>
+              <span className="font-black text-xl text-white">Refugio Patitas</span>
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Plataforma comunitaria dedicada a encontrar hogares amorosos para animales rescatados y reunir familias con sus mascotas perdidas a través de geolocalización local.
+              Comunidad dedicada a encontrar hogares amorosos para animales rescatados, coordinar visitas previas y reunir familias con sus mascotas perdidas mediante geolocalización de 300 metros.
             </p>
-            <div className="flex items-center gap-2 text-xs text-teal-400">
+            <div className="flex items-center gap-2 text-xs text-amber-400">
               <Shield className="w-4 h-4" />
-              <span>Publicaciones moderadas y seguras</span>
+              <span>Publicaciones admitidas por administradores</span>
             </div>
           </div>
 
           {/* Quick Navigation */}
           <div>
-            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider mb-4">
+            <h3 className="text-xs font-bold text-orange-400 uppercase tracking-wider mb-4">
               Navegación
             </h3>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <Link href="/adopciones" className="hover:text-teal-400 transition-colors">
+                <Link href="/adopciones" className="hover:text-orange-300 transition-colors">
                   🐾 Mascotas en Adopción
                 </Link>
               </li>
               <li>
-                <Link href="/perdidos" className="hover:text-teal-400 transition-colors">
-                  🚨 Animales Perdidos
+                <Link href="/mascota-ideal" className="hover:text-orange-300 transition-colors font-semibold text-orange-300 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> Test "Mi Mascota Ideal"
                 </Link>
               </li>
               <li>
-                <Link href="/perdidos?view=map" className="hover:text-teal-400 transition-colors">
+                <Link href="/mi-formulario" className="hover:text-orange-300 transition-colors flex items-center gap-1">
+                  <FileText className="w-3 h-3" /> Mi Formulario de Adopción
+                </Link>
+              </li>
+              <li>
+                <Link href="/perdidos" className="hover:text-orange-300 transition-colors">
+                  🚨 Animales Perdidos y Encontrados
+                </Link>
+              </li>
+              <li>
+                <Link href="/perdidos?view=map" className="hover:text-orange-300 transition-colors">
                   📍 Mapa con Radio de 300m
-                </Link>
-              </li>
-              <li>
-                <Link href="/publicar" className="hover:text-teal-400 transition-colors">
-                  ➕ Publicar una Mascota
-                </Link>
-              </li>
-              <li>
-                <Link href="/moderacion" className="hover:text-teal-400 transition-colors">
-                  🛡️ Panel de Moderación
                 </Link>
               </li>
             </ul>
@@ -60,46 +60,46 @@ export default function Footer() {
 
           {/* Protocolo de Emergencia */}
           <div>
-            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider mb-4">
-              Guía de Emergencia
+            <h3 className="text-xs font-bold text-orange-400 uppercase tracking-wider mb-4">
+              Consejos de Adopción
             </h3>
             <ul className="space-y-2 text-xs text-slate-400">
               <li className="flex items-start gap-1.5">
-                <span className="text-teal-400 font-bold">1.</span>
-                <span>Publica de inmediato con fotos claras y fecha exacta.</span>
+                <span className="text-orange-400 font-bold">1.</span>
+                <span>Haz el test de "Mi Mascota Ideal" para evaluar afinidad y energía.</span>
               </li>
               <li className="flex items-start gap-1.5">
-                <span className="text-teal-400 font-bold">2.</span>
-                <span>Explora el mapa en un radio inicial de 300 metros alrededor del último punto visto.</span>
+                <span className="text-orange-400 font-bold">2.</span>
+                <span>Agenda una Visita Previa para conocer a la mascota en persona.</span>
               </li>
               <li className="flex items-start gap-1.5">
-                <span className="text-teal-400 font-bold">3.</span>
-                <span>Deja prendas con tu olor cerca de la zona donde se perdió.</span>
+                <span className="text-orange-400 font-bold">3.</span>
+                <span>Mantén tu formulario de adoptante actualizado en tu perfil.</span>
               </li>
             </ul>
           </div>
 
           {/* Compromiso y Contacto */}
           <div>
-            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider mb-4">
-              Contacto y Comunidad
+            <h3 className="text-xs font-bold text-orange-400 uppercase tracking-wider mb-4">
+              Sede y Contacto
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed mb-3">
-              ¿Eres un refugio o rescatista independiente? Contáctanos para verificar tu cuenta y gestionar adopciones directamente.
+              ¿Quieres colaborar o ser voluntario en <strong>Refugio Patitas</strong>? Escríbenos para sumarte a la red de rescate.
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Mail className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>contacto@refugio.org</span>
+              <Mail className="w-4 h-4 text-orange-400 shrink-0" />
+              <span>contacto@refugiopatitas.org</span>
             </div>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-          <p>© {new Date().getFullYear()} Refugio. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Refugio Patitas. Todos los derechos reservados.</p>
           <div className="flex items-center gap-1 text-slate-400">
             <span>Hecho con</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" />
-            <span>para salvar vidas animales</span>
+            <span>para salvar vidas de cuatro patas</span>
           </div>
         </div>
       </div>

@@ -25,6 +25,24 @@ model User {
   pets              Pet[]
   applications      AdoptionApplication[]
   moderatedPets     Pet[]     @relation("ModeratedBy")
+  adoptionProfile   UserAdoptionProfile?
+}
+
+model UserAdoptionProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  housingType      String   // "CASA_CON_PATIO_CERRADO", "DEPARTAMENTO_CON_BALCON", etc.
+  hasYard          Boolean  @default(false)
+  freeTimeHours    String   // e.g. "Más de 4 horas diarias", "Trabajo remoto"
+  householdMembers String   // integrantes
+  hasBabiesOrKids  Boolean  @default(false)
+  otherAnimals     String?  // si tiene otros animales y qué especie
+  experience       String?  // experiencia previa con mascotas
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Pet {
@@ -55,6 +73,9 @@ model Pet {
   contactEmail    String
   contactPhone    String?
   
+  // Sede o Refugio donde se encuentra
+  shelterLocation String?   @default("Refugio Patitas - Sede Central")
+
   // Ubicación para mapa y radio de 300m
   latitude        Float?
   longitude       Float?
@@ -101,7 +122,7 @@ model AdoptionApplication {
   email            String
   phone            String
   
-  // Cuestionario de primera adopción
+  // Cuestionario de primera adopción / perfil
   housingType      String   // "CASA_CON_PATIO", "DEPARTAMENTO", "FINCA", etc.
   hasYard          Boolean  @default(false)
   freeTimeHours    String   // e.g. "4 a 6 horas", "trabajo remoto"
@@ -110,6 +131,12 @@ model AdoptionApplication {
   otherAnimals     String?  // si tiene otros animales y qué especie
   experience       String?  // experiencia previa con mascotas
   notes            String?  // comentarios adicionales
+
+  // Calendario, Visita previa y Sede
+  preferredDate    DateTime?
+  preferredTimeSlot String? // "Mañana (10:00 a 13:00)" / "Tarde (15:00 a 18:00)"
+  isPreVisit       Boolean  @default(false)
+  shelterLocation  String?  @default("Refugio Patitas - Sede Central")
 
   status           String   @default("EN_REVISION") // "ENVIADO", "EN_REVISION", "APROBADO", "RECHAZADO"
   createdAt        DateTime @default(now())
