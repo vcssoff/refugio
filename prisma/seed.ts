@@ -21,8 +21,8 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      name: "Administrador Refugio Patitas",
-      email: "admin@patitas.uy",
+      name: "Sofía (Admin Refugio Patitas)",
+      email: "sofiaacedress@gmail.com",
       password: adminPassword,
       role: "ADMIN",
       isVerifiedShelter: true,
