@@ -276,7 +276,7 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
 
                     {app.notes && (
                       <p className="text-xs text-slate-600 italic bg-amber-50/50 p-3 rounded-xl border border-amber-100">
-                        "{app.notes}"
+                        &quot;{app.notes}&quot;
                       </p>
                     )}
                   </div>

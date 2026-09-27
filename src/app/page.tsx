@@ -106,7 +106,7 @@ export default async function HomePage() {
                 className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 text-white font-black rounded-2xl shadow-sm transition-all text-sm active:scale-95 touch-manipulation cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Test "Mi Mascota Ideal"</span>
+                <span>Test &quot;Mi Mascota Ideal&quot;</span>
               </Link>
               <Link
                 href="/adopciones"

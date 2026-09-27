@@ -306,7 +306,7 @@ export default function AdminSolicitudesClient({
 
                     {app.notes && (
                       <p className="text-xs text-slate-600 italic bg-orange-50/40 p-3 rounded-xl border border-orange-100">
-                        "{app.notes}"
+                        &quot;{app.notes}&quot;
                       </p>
                     )}
                   </div>

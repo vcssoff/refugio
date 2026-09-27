@@ -189,7 +189,7 @@ export default function PetComments({ petId, petTitle, initialComments = [] }: P
               )}
 
               <p className="text-[#3e342f] leading-relaxed bg-white p-3 rounded-xl border border-[#eee6db]">
-                "{c.message}"
+                &quot;{c.message}&quot;
               </p>
 
               {c.authorPhone && (

@@ -585,7 +585,7 @@ export default function PublicarClient() {
           <div>
             <strong className="font-bold">Política de Seguridad y Moderación:</strong>
             <p className="mt-0.5 text-amber-800">
-              Al hacer clic en "Enviar Publicación", tu ficha se enviará al sistema de moderación y notificará al dueño de la página y a los rescatistas verificados. Una vez validada, quedará visible de inmediato para toda la comunidad.
+              Al hacer clic en &quot;Enviar Publicación&quot;, tu ficha se enviará al sistema de moderación y notificará al dueño de la página y a los rescatistas verificados. Una vez validada, quedará visible de inmediato para toda la comunidad.
             </p>
           </div>
         </div>

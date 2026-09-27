@@ -37,7 +37,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/mascota-ideal" className="hover:text-orange-300 transition-colors font-semibold text-orange-300 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Test "Mi Mascota Ideal"
+                  <Sparkles className="w-3 h-3" /> Test &quot;Mi Mascota Ideal&quot;
                 </Link>
               </li>
               <li>
@@ -66,7 +66,7 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li className="flex items-start gap-1.5">
                 <span className="text-orange-400 font-bold">1.</span>
-                <span>Haz el test de "Mi Mascota Ideal" para evaluar afinidad y energía.</span>
+                <span>Haz el test de &quot;Mi Mascota Ideal&quot; para evaluar afinidad y energía.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-orange-400 font-bold">2.</span>
