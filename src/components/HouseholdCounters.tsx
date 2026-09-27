@@ -67,24 +67,28 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
           <span>¿Quiénes viven en la casa? (Toca + o - para sumar integrantes)</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {peopleCounters.map(({ key, label, icon }) => {
             const val = data[key] || 0;
             return (
               <div
                 key={key}
-                className="flex items-center justify-between p-3.5 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs"
+                className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs hover:border-orange-200 transition-colors"
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl select-none">{icon}</span>
-                  <div>
-                    <span className="text-xs font-bold text-[#2d2420] block">{label}</span>
-                    <span className="text-[10px] text-stone-500 font-medium">En el hogar</span>
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <span className="text-2xl sm:text-3xl select-none shrink-0">{icon}</span>
+                  <div className="min-w-0">
+                    <span className="text-xs sm:text-sm font-bold text-[#2d2420] block leading-snug">
+                      {label}
+                    </span>
+                    <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium block">
+                      En el hogar
+                    </span>
                   </div>
                 </div>
 
-                {/* Controles con botones grandes cómodos para celular (44px) */}
-                <div className="flex items-center gap-2">
+                {/* Controles Stepper unificados y perfectamente alineados */}
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-white/90 p-1 rounded-xl border border-[#e2d7c7] shadow-2xs">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -92,13 +96,13 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                       updateCount(key, -1);
                     }}
                     disabled={val <= 0}
-                    className="w-11 h-11 rounded-xl bg-white border border-[#dcd3c5] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white border border-[#ded5c7] disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
                     aria-label={`Restar ${label}`}
                   >
-                    <Minus className="w-4 h-4 text-stone-700" />
+                    <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-700" />
                   </button>
 
-                  <span className="w-7 text-center text-base font-black text-orange-700 select-none">
+                  <span className="w-7 sm:w-8 text-center text-sm sm:text-base font-black text-orange-700 select-none tabular-nums">
                     {val}
                   </span>
 
@@ -108,10 +112,10 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                       e.preventDefault();
                       updateCount(key, 1);
                     }}
-                    className="w-11 h-11 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer font-bold"
                     aria-label={`Sumar ${label}`}
                   >
-                    <Plus className="w-4 h-4 text-white font-bold" />
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white font-bold" />
                   </button>
                 </div>
               </div>
@@ -129,16 +133,20 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
 
         {/* Perros y Gatos con contadores grandes */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="text-3xl select-none">🐶</span>
-              <div>
-                <span className="text-xs font-bold text-[#2d2420] block">Perros en casa</span>
-                <span className="text-[10px] text-stone-500">Cantidad actual</span>
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs hover:border-amber-200 transition-colors">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <span className="text-2xl sm:text-3xl select-none shrink-0">🐶</span>
+              <div className="min-w-0">
+                <span className="text-xs sm:text-sm font-bold text-[#2d2420] block leading-snug">
+                  Perros en casa
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium block">
+                  Cantidad actual
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-white/90 p-1 rounded-xl border border-[#e2d7c7] shadow-2xs">
               <button
                 type="button"
                 onClick={(e) => {
@@ -146,13 +154,13 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                   updateCount("dogsCount", -1);
                 }}
                 disabled={data.dogsCount <= 0}
-                className="w-11 h-11 rounded-xl bg-white border border-[#dcd3c5] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white border border-[#ded5c7] disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
                 aria-label="Restar perros"
               >
-                <Minus className="w-4 h-4 text-stone-700" />
+                <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-700" />
               </button>
 
-              <span className="w-7 text-center text-base font-black text-amber-800 select-none">
+              <span className="w-7 sm:w-8 text-center text-sm sm:text-base font-black text-amber-800 select-none tabular-nums">
                 {data.dogsCount || 0}
               </span>
 
@@ -162,24 +170,28 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                   e.preventDefault();
                   updateCount("dogsCount", 1);
                 }}
-                className="w-11 h-11 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-amber-600 hover:bg-amber-700 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer font-bold"
                 aria-label="Sumar perros"
               >
-                <Plus className="w-4 h-4 text-white" />
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white font-bold" />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="text-3xl select-none">🐱</span>
-              <div>
-                <span className="text-xs font-bold text-[#2d2420] block">Gatos en casa</span>
-                <span className="text-[10px] text-stone-500">Cantidad actual</span>
+          <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-[#e8dfd3] bg-[#fbf8f3] shadow-xs hover:border-rose-200 transition-colors">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <span className="text-2xl sm:text-3xl select-none shrink-0">🐱</span>
+              <div className="min-w-0">
+                <span className="text-xs sm:text-sm font-bold text-[#2d2420] block leading-snug">
+                  Gatos en casa
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium block">
+                  Cantidad actual
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-white/90 p-1 rounded-xl border border-[#e2d7c7] shadow-2xs">
               <button
                 type="button"
                 onClick={(e) => {
@@ -187,13 +199,13 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                   updateCount("catsCount", -1);
                 }}
                 disabled={data.catsCount <= 0}
-                className="w-11 h-11 rounded-xl bg-white border border-[#dcd3c5] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white border border-[#ded5c7] disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center text-stone-700 hover:bg-stone-50 active:scale-95 transition-all touch-manipulation cursor-pointer shadow-xs"
                 aria-label="Restar gatos"
               >
-                <Minus className="w-4 h-4 text-stone-700" />
+                <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-700" />
               </button>
 
-              <span className="w-7 text-center text-base font-black text-rose-700 select-none">
+              <span className="w-7 sm:w-8 text-center text-sm sm:text-base font-black text-rose-700 select-none tabular-nums">
                 {data.catsCount || 0}
               </span>
 
@@ -203,10 +215,10 @@ export default function HouseholdCounters({ data, onChange }: HouseholdCountersP
                   e.preventDefault();
                   updateCount("catsCount", 1);
                 }}
-                className="w-11 h-11 rounded-xl bg-rose-500 hover:bg-rose-600 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-rose-500 hover:bg-rose-600 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs touch-manipulation cursor-pointer font-bold"
                 aria-label="Sumar gatos"
               >
-                <Plus className="w-4 h-4 text-white" />
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white font-bold" />
               </button>
             </div>
           </div>
