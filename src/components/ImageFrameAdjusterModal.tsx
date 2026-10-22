@@ -9,7 +9,6 @@ import {
   Move,
   Check,
   RefreshCw,
-  Sparkles,
   Smile,
   Maximize2,
 } from "lucide-react";
@@ -289,7 +288,7 @@ export default function ImageFrameAdjusterModal({
         <div className="p-4 sm:p-5 border-b border-[#eee7dd] flex items-center justify-between bg-[#fbf8f3]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
+              <Smile className="w-4 h-4" />
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black text-[#2d2420]">

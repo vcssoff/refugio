@@ -11,7 +11,6 @@ import {
   Clock,
   Calendar,
   MapPin,
-  Sparkles,
   User,
 } from "lucide-react";
 import { HOUSING_OPTIONS } from "@/lib/constants";
@@ -213,7 +212,7 @@ export default function AdoptionFormModal({
 
               {loadedSavedProfile && (
                 <div className="bg-[#fff9ef] border border-[#e8d8be] p-3 rounded-2xl flex items-center gap-2 text-xs text-[#523e2e]">
-                  <Sparkles className="w-4 h-4 text-orange-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>¡Tus datos guardados de adoptante se han precargado automáticamente!</span>
                 </div>
               )}

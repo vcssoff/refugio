@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { PawPrint, Heart, Shield, MapPin, Mail, Sparkles, FileText } from "lucide-react";
+import { PawPrint, Heart, Shield, MapPin, Mail, FileText } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -37,7 +37,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/mascota-ideal" className="hover:text-orange-300 transition-colors font-semibold text-orange-300 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Test &quot;Mi Mascota Ideal&quot;
+                  <Heart className="w-3 h-3 text-orange-400" /> Test &quot;Mi Mascota Ideal&quot;
                 </Link>
               </li>
               <li>

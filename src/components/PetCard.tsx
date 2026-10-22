@@ -11,7 +11,7 @@ import {
   Species,
   Gender,
 } from "@/lib/constants";
-import { MapPin, Check, ShieldCheck, Sparkles, Stethoscope } from "lucide-react";
+import { MapPin, Check, ShieldCheck, Heart, Stethoscope } from "lucide-react";
 
 export interface PetCardData {
   id: string;
@@ -19,6 +19,7 @@ export interface PetCardData {
   type: string;
   species: string;
   name?: string | null;
+  description?: string | null;
   gender: string;
   ageGroup: string;
   size: string;
@@ -53,6 +54,8 @@ export default function PetCard({ pet }: PetCardProps) {
     badgeColor: "bg-orange-100 text-orange-900 border-orange-200",
   };
   const primaryImage = pet.images?.[0];
+  const petName = pet.name?.trim();
+  const petSubtitle = (pet.title && pet.title.trim() !== petName ? pet.title : pet.description)?.trim();
 
   return (
     <Link
@@ -114,9 +117,22 @@ export default function PetCard({ pet }: PetCardProps) {
             )}
           </div>
 
-          <h3 className="font-extrabold text-base text-[#2d2420] group-hover:text-orange-600 transition-colors line-clamp-1 mb-2">
-            {pet.title}
-          </h3>
+          {petName ? (
+            <div className="mb-2">
+              <h3 className="font-black text-lg text-[#2d2420] group-hover:text-orange-600 transition-colors line-clamp-1 leading-snug">
+                {petName}
+              </h3>
+              {petSubtitle && (
+                <p className="text-xs text-[#63554b] line-clamp-1 font-medium mt-0.5">
+                  {petSubtitle}
+                </p>
+              )}
+            </div>
+          ) : (
+            <h3 className="font-extrabold text-base text-[#2d2420] group-hover:text-orange-600 transition-colors line-clamp-1 mb-2">
+              {pet.title}
+            </h3>
+          )}
 
           {/* Condición Médica / Herida si existe */}
           {pet.healthCondition && (
@@ -140,7 +156,7 @@ export default function PetCard({ pet }: PetCardProps) {
             )}
             {pet.goodWithKids && (
               <span className="text-[11px] font-semibold bg-rose-50 text-rose-900 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-rose-200">
-                <Sparkles className="w-3 h-3 text-rose-500" /> Con Niños
+                <Heart className="w-3 h-3 text-rose-500" /> Con Niños
               </span>
             )}
           </div>

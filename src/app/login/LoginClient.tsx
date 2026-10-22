@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PawPrint, Lock, Mail, User, ShieldCheck, Loader2, Sparkles, Building2 } from "lucide-react";
+import { PawPrint, Lock, Mail, User, ShieldCheck, Loader2, Building2 } from "lucide-react";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -287,7 +287,7 @@ export default function LoginClient() {
       {/* Cuentas Rápidas de Prueba (Dev/Demo Helper) */}
       <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2 text-xs">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
-          <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
           <span>Acceso Rápido para Pruebas (1 Clic)</span>
         </div>
         <p className="text-[11px] text-slate-500">

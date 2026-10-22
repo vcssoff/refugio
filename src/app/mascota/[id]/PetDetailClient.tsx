@@ -32,7 +32,6 @@ import {
   Share2,
   AlertCircle,
   Printer,
-  Sparkles,
   Stethoscope,
   Pencil,
   Trash2,
@@ -317,8 +316,13 @@ export default function PetDetailClient({ pet }: { pet: any }) {
               <h1 className="text-2xl sm:text-3xl font-black text-[#2d2420] leading-tight">
                 {pet.name || pet.title}
               </h1>
+              {pet.name && pet.title && pet.title.trim() !== pet.name.trim() && (
+                <p className="text-sm text-[#63554b] font-medium mt-0.5">
+                  {pet.title}
+                </p>
+              )}
               {pet.city && (
-                <p className="text-xs text-[#523e2e] flex items-center gap-1 mt-1 font-semibold">
+                <p className="text-xs text-[#523e2e] flex items-center gap-1 mt-1.5 font-semibold">
                   <MapPin className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                   {pet.city} {pet.address ? `(${pet.address})` : ""}
                 </p>

@@ -9,7 +9,7 @@ import {
   MapPin,
   ShieldCheck,
   ArrowRight,
-  Sparkles,
+  PawPrint,
   Calendar,
   FileText,
   AlertTriangle,
@@ -84,7 +84,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-[#e8dfd2] text-amber-950 text-xs font-bold tracking-wide uppercase shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+              <PawPrint className="w-3.5 h-3.5 text-orange-600" />
               Bienvenidos a Refugio Patitas
             </div>
 
@@ -105,7 +105,7 @@ export default async function HomePage() {
                 href="/mascota-ideal"
                 className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 text-white font-black rounded-2xl shadow-sm transition-all text-sm active:scale-95 touch-manipulation cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" />
+                <Heart className="w-4 h-4 fill-white" />
                 <span>Test &quot;Mi Mascota Ideal&quot;</span>
               </Link>
               <Link
@@ -163,7 +163,7 @@ export default async function HomePage() {
         <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 rounded-3xl p-8 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" /> Nuevo en Refugio Patitas
+              <PawPrint className="w-3.5 h-3.5" /> Nuevo en Refugio Patitas
             </span>
             <h2 className="text-2xl sm:text-3xl font-black">
               ¿No sabes qué mascota se adapta mejor a tu vida?

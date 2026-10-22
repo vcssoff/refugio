@@ -25,7 +25,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ShieldCheck,
-  Sparkles,
+  PawPrint,
 } from "lucide-react";
 
 const TYPE_OPTIONS = (Object.keys(TYPE_LABELS) as PetType[]).map((value) => ({
@@ -202,7 +202,7 @@ export default function EditPetClient({ pet }: { pet: any }) {
 
       <div className="bg-gradient-to-r from-[#faeee1] via-[#f7ebd9] to-[#fceee7] rounded-3xl p-6 sm:p-8 text-[#2d2420] shadow-sm border border-[#e8dfd3]">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 text-xs font-bold uppercase tracking-wider mb-2 text-orange-900 border border-[#e2d6c6]">
-          <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+          <PawPrint className="w-3.5 h-3.5 text-orange-600" />
           Edición de Ficha
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-[#2d2420]">

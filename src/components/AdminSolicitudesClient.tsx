@@ -17,7 +17,6 @@ import {
   Users,
   AlertTriangle,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 import { TYPE_LABELS, PetType } from "@/lib/constants";
 
@@ -307,7 +306,7 @@ export default function AdminSolicitudesClient({
                       )}
                       {app.isPreVisit && (
                         <span className="text-xs font-black text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-rose-500" />
+                          <Calendar className="w-3 h-3 text-rose-500" />
                           SOLICITA VISITA PREVIA
                         </span>
                       )}

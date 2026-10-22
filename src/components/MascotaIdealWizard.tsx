@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from "react";
 import PetCard, { PetCardData } from "@/components/PetCard";
 import {
-  Sparkles,
   Heart,
   RotateCcw,
   CheckCircle2,
@@ -13,6 +12,7 @@ import {
   Home,
   Users,
   Compass,
+  PawPrint,
 } from "lucide-react";
 
 interface MascotaIdealWizardProps {
@@ -137,7 +137,7 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
       {/* Header Visual Cálido */}
       <div className="text-center space-y-3 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+          <PawPrint className="w-3.5 h-3.5 text-orange-600" />
           Test de Afinidad y Amor a Primera Vista
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
@@ -461,9 +461,9 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
               <button
                 type="button"
                 onClick={() => setIsCompleted(true)}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-bold rounded-xl text-xs shadow-md shadow-orange-500/25 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-bold rounded-xl text-xs shadow-md shadow-orange-500/25 transition-all cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" /> Ver Mis Mascotas Compatibles
+                <Heart className="w-4 h-4 fill-white" /> Ver Mis Mascotas Compatibles
               </button>
             )}
           </div>

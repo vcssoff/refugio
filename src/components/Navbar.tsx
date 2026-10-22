@@ -14,7 +14,6 @@ import {
   X,
   User as UserIcon,
   LogOut,
-  Sparkles,
   FileText,
   MapPin,
 } from "lucide-react";
@@ -31,9 +30,9 @@ export default function Navbar() {
   const canModerate = userRole === "ADMIN" || userRole === "REFUGIO" || Boolean(isVerifiedShelter);
 
   const navLinks = [
-    { href: "/adopciones", label: "Adopciones", icon: Heart },
+    { href: "/adopciones", label: "Adopciones", icon: PawPrint },
     { href: "/perdidos", label: "Perdidos & Encontrados", icon: Compass },
-    { href: "/mascota-ideal", label: "Mi Mascota Ideal", icon: Sparkles, highlight: true },
+    { href: "/mascota-ideal", label: "Mi Mascota Ideal", icon: Heart, highlight: true },
     { href: "/mi-formulario", label: "Mi Formulario", icon: FileText },
   ];
 
