@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import ImageUploaderWebP, { UploadedPetImage } from "@/components/ImageUploaderWebP";
 import MapSelector from "@/components/map/MapSelector";
 import {
@@ -31,10 +33,25 @@ import {
 export default function PublicarClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userRole = (session?.user as any)?.role;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isVerifiedShelter = Boolean((session?.user as any)?.isVerifiedShelter);
+  const sessionEmail = session?.user?.email?.toLowerCase()?.trim();
+  const isAdminOrShelter =
+    userRole === "ADMIN" ||
+    userRole === "REFUGIO" ||
+    isVerifiedShelter ||
+    sessionEmail === "sofiaacedress@gmail.com";
+
   const initialType = (searchParams.get("type") as PetType) || "ADOPCION";
 
   const [type, setType] = useState<PetType>(initialType);
   const [images, setImages] = useState<UploadedPetImage[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [createdPet, setCreatedPet] = useState<any>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number }>({
     lat: -34.9011, // Montevideo, Uruguay
     lng: -56.1645,
@@ -112,6 +129,7 @@ export default function PublicarClient() {
         throw new Error(data.error || "Error al crear la publicación");
       }
 
+      setCreatedPet(data.pet);
       setIsSuccess(true);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -125,34 +143,61 @@ export default function PublicarClient() {
   };
 
   if (isSuccess) {
+    const isAutoPub = Boolean(createdPet?.status === "PUBLICADO" || isAdminOrShelter);
+
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
           <CheckCircle2 className="w-12 h-12" />
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900">¡Publicación Recibida!</h1>
-        <div className="bg-teal-50 border border-teal-200 p-5 rounded-3xl text-sm text-teal-900 space-y-2 text-left">
-          <p className="font-bold flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-teal-700" />
-            En proceso de moderación comunitaria
-          </p>
-          <p className="text-xs text-teal-800 leading-relaxed">
-            Se ha enviado una notificación al administrador de la página y a los refugios verificados para su aprobación.
-            Esto evita contenido inapropiado y protege a los animales. En cuanto sea aprobada, aparecerá visible en el catálogo y en el mapa interactivo.
-          </p>
-        </div>
+        <h1 className="text-3xl font-extrabold text-[#2d2420]">
+          {isAutoPub ? "¡Mascota Publicada Exitosamente!" : "¡Publicación Recibida!"}
+        </h1>
+
+        {isAutoPub ? (
+          <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-3xl text-sm text-emerald-950 space-y-2 text-left shadow-xs">
+            <p className="font-bold flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-700" />
+              Publicación Directa (Sin Moderación Previa)
+            </p>
+            <p className="text-xs text-emerald-800 leading-relaxed">
+              Como publicaste desde tu cuenta de <strong>Administradora / Refugio</strong>, tu mascota ha quedado activa de inmediato y ya está visible para toda la comunidad.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-amber-50 border border-amber-200 p-5 rounded-3xl text-sm text-amber-900 space-y-2 text-left shadow-xs">
+            <p className="font-bold flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-amber-700" />
+              En proceso de moderación comunitaria
+            </p>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              Se ha enviado una notificación al administrador de la página para su aprobación. En cuanto sea aprobada, aparecerá visible en el catálogo y mapa.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-          <button
-            onClick={() => router.push("/")}
-            className="w-full sm:w-auto px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm transition-colors"
+          {createdPet?.id && (
+            <Link
+              href={`/mascota/${createdPet.id}`}
+              className="w-full sm:w-auto px-7 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-all shadow-xs"
+            >
+              Ver Ficha de la Mascota
+            </Link>
+          )}
+
+          <Link
+            href={type === "ADOPCION" ? "/adopciones" : "/perdidos"}
+            className="w-full sm:w-auto px-7 py-3.5 bg-white border border-[#ded5c7] hover:bg-stone-50 text-[#3e342f] font-bold rounded-2xl text-sm transition-all"
           >
-            Volver al Inicio
-          </button>
+            Ver Catálogo
+          </Link>
+
           <button
             onClick={() => {
               setIsSuccess(false);
               setImages([]);
+              setCreatedPet(null);
               setFormData({
                 title: "",
                 name: "",
@@ -178,9 +223,9 @@ export default function PublicarClient() {
                 address: "",
               });
             }}
-            className="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors"
+            className="w-full sm:w-auto px-5 py-3.5 text-xs text-stone-600 hover:text-stone-900 font-bold transition-colors cursor-pointer"
           >
-            Publicar otra mascota
+            + Publicar Otra Mascota
           </button>
         </div>
       </div>
@@ -579,33 +624,58 @@ export default function PublicarClient() {
           </div>
         </div>
 
-        {/* Banner de Aviso de Moderación */}
-        <div className="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-amber-900">
-          <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <strong className="font-bold">Política de Seguridad y Moderación:</strong>
-            <p className="mt-0.5 text-amber-800">
-              Al hacer clic en &quot;Enviar Publicación&quot;, tu ficha se enviará al sistema de moderación y notificará al dueño de la página y a los rescatistas verificados. Una vez validada, quedará visible de inmediato para toda la comunidad.
-            </p>
+        {/* Banner de Aviso de Moderación / Publicación Directa */}
+        {isAdminOrShelter ? (
+          <div className="bg-emerald-50/80 border border-emerald-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-emerald-950">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-bold text-emerald-900">Modo Administrador / Refugio Verificado:</strong>
+              <p className="mt-0.5 text-emerald-800">
+                Tu publicación se publicará y activará de manera inmediata sin requerir aprobación o moderación previa. Estará visible al instante para toda la comunidad.
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-amber-900">
+            <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-bold">Política de Seguridad y Moderación:</strong>
+              <p className="mt-0.5 text-amber-800">
+                Al hacer clic en &quot;Enviar Mascota a Moderación&quot;, tu ficha se enviará al equipo de moderación. Una vez validada, quedará visible de inmediato para toda la comunidad.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Botón de Envío */}
         <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg shadow-orange-500/20 text-base transition-all active:scale-95 touch-manipulation cursor-pointer"
+            className={`w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-8 py-3.5 ${
+              isAdminOrShelter
+                ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-emerald-500/20"
+                : "bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 shadow-orange-500/20"
+            } disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg text-base transition-all active:scale-95 touch-manipulation cursor-pointer`}
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Procesando publicación...
+                {isAdminOrShelter ? "Publicando mascota..." : "Procesando publicación..."}
               </>
             ) : (
               <>
-                <PawPrint className="w-5 h-5 fill-white" />
-                Enviar Mascota a Moderación
+                {isAdminOrShelter ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-white" />
+                    Publicar Mascota Inmediatamente
+                  </>
+                ) : (
+                  <>
+                    <PawPrint className="w-5 h-5 fill-white" />
+                    Enviar Mascota a Moderación
+                  </>
+                )}
               </>
             )}
           </button>

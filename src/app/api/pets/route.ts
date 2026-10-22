@@ -135,12 +135,27 @@ export async function POST(req: Request) {
       userId = existingUser.id;
     }
 
-    // Regla de negocio: Toda publicación nueva entra como PENDIENTE_MODERACION
+    // Si publica un Administrador o Refugio Verificado, se publica directamente sin requerir moderación
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userRole = (session?.user as any)?.role;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isVerifiedShelter = Boolean((session?.user as any)?.isVerifiedShelter);
+    const sessionEmail = session?.user?.email?.toLowerCase()?.trim();
+    const adminEmail = (process.env.ADMIN_EMAIL || "sofiaacedress@gmail.com").toLowerCase().trim();
+    const isAdminOrShelter =
+      userRole === "ADMIN" ||
+      userRole === "REFUGIO" ||
+      isVerifiedShelter ||
+      sessionEmail === adminEmail ||
+      contactEmail.toLowerCase().trim() === adminEmail;
+
+    const initialStatus = isAdminOrShelter ? "PUBLICADO" : "PENDIENTE_MODERACION";
+
     const pet = await prisma.pet.create({
       data: {
         title,
         type,
-        status: "PENDIENTE_MODERACION",
+        status: initialStatus,
         species,
         otherSpecies: otherSpecies || null,
         name: name || null,
@@ -187,15 +202,21 @@ export async function POST(req: Request) {
       },
     });
 
-    // Enviar alerta de moderación por correo al dueño de la página / admin
-    await sendPendingModerationAlert({
-      petId: pet.id,
-      petTitle: pet.title,
-      petType: pet.type,
-      authorEmail: contactEmail,
-    });
+    // Enviar alerta de moderación por correo solo si requiere revisión de terceros
+    if (initialStatus === "PENDIENTE_MODERACION") {
+      await sendPendingModerationAlert({
+        petId: pet.id,
+        petTitle: pet.title,
+        petType: pet.type,
+        authorEmail: contactEmail,
+      });
+    }
 
-    return NextResponse.json({ success: true, pet }, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      pet,
+      isAutoPublished: initialStatus === "PUBLICADO",
+    }, { status: 201 });
   } catch (error) {
     console.error("Error en POST /api/pets:", error);
     return NextResponse.json({ error: "Error al crear la publicación" }, { status: 500 });

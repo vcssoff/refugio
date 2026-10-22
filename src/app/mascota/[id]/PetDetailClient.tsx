@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import ResponsivePicture from "@/components/ResponsivePicture";
 import AdoptionFormModal from "@/components/AdoptionFormModal";
 import PetComments from "@/components/PetComments";
@@ -32,6 +33,7 @@ import {
   Printer,
   Sparkles,
   Stethoscope,
+  Pencil,
 } from "lucide-react";
 
 const MapExplorer = dynamic(() => import("@/components/map/MapExplorer"), {
@@ -57,6 +59,19 @@ export default function PetDetailClient({ pet }: { pet: any }) {
     badgeColor: "bg-orange-100 text-orange-900 border-orange-200",
   };
 
+  const { data: session } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userRole = (session?.user as any)?.role;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isVerifiedShelter = Boolean((session?.user as any)?.isVerifiedShelter);
+  const sessionEmail = session?.user?.email?.toLowerCase()?.trim();
+  const isOwnerOrAdmin =
+    userRole === "ADMIN" ||
+    userRole === "REFUGIO" ||
+    isVerifiedShelter ||
+    sessionEmail === "sofiaacedress@gmail.com" ||
+    session?.user?.id === pet.userId;
+
   const handleShare = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
@@ -78,7 +93,7 @@ export default function PetDetailClient({ pet }: { pet: any }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb & Acciones */}
-      <div className="flex items-center justify-between text-xs text-[#63554b]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#63554b]">
         <div className="flex items-center gap-2">
           <Link href="/" className="hover:text-orange-600 font-medium">Inicio</Link>
           <span>/</span>
@@ -92,7 +107,18 @@ export default function PetDetailClient({ pet }: { pet: any }) {
           <span className="text-[#2d2420] font-bold truncate max-w-[150px] sm:max-w-xs">{pet.title}</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {isOwnerOrAdmin && (
+            <Link
+              href={`/mascota/${pet.id}/editar`}
+              className="min-h-[42px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold active:scale-95 touch-manipulation cursor-pointer transition-all shadow-xs"
+              title="Editar información y fotos de la mascota"
+            >
+              <Pencil className="w-3.5 h-3.5 text-amber-700" />
+              <span>Editar Ficha y Fotos</span>
+            </Link>
+          )}
+
           {isLostOrFound && (
             <button
               type="button"
