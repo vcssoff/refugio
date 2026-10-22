@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sendPetDeletedAlert } from "@/lib/email";
 
 export async function GET(
   req: Request,
@@ -190,6 +191,14 @@ export async function DELETE(
 
     const existingPet = await prisma.pet.findUnique({
       where: { id },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+          },
+        },
+      },
     });
 
     if (!existingPet) {
@@ -217,9 +226,27 @@ export async function DELETE(
       );
     }
 
+    const isOwnerDeleting = session?.user?.id === existingPet.userId;
+    const isAdmin = userRole === "ADMIN" || sessionEmail === adminEmail;
+
     await prisma.pet.delete({
       where: { id },
     });
+
+    // Si el usuario (dueño de la publicación) elimina el post, notificar al admin
+    if (isOwnerDeleting && !isAdmin) {
+      try {
+        await sendPetDeletedAlert({
+          petTitle: existingPet.title,
+          petType: existingPet.type,
+          authorEmail: existingPet.user?.email || existingPet.contactEmail,
+          deletedByEmail: sessionEmail || existingPet.contactEmail,
+          toEmail: adminEmail,
+        });
+      } catch (err) {
+        console.error("Error al notificar al admin sobre mascota eliminada:", err);
+      }
+    }
 
     return NextResponse.json({ success: true, message: "Mascota eliminada correctamente" });
   } catch (error) {

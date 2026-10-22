@@ -25,11 +25,13 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
 
   const [answers, setAnswers] = useState({
     species: "CUALQUIERA", // "PERRO", "GATO", "CUALQUIERA"
-    energyLevel: "MODERADO", // "TRANQUILO", "MODERADO", "ACTIVO"
-    housing: "CASA", // "DEPTO", "CASA", "CAMPO"
+    energyLevel: "MODERADO", // "TRANQUILO", "MODERADO", "ACTIVO", "INDEPENDIENTE"
+    housing: "CASA", // "DEPTO_SIN", "DEPTO_CON", "CASA", "CAMPO"
     hasKids: false,
     hasDogs: false,
     hasCats: false,
+    hasSeniors: false,
+    hasNone: true, // "Ninguno (Sin otros animales ni niños)"
     preferredSize: "CUALQUIERA", // "PEQUENO", "MEDIANO", "GRANDE", "CUALQUIERA"
   });
 
@@ -50,40 +52,61 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
           score += 15;
         }
 
-        // Convivencia Niños
-        if (answers.hasKids) {
-          if (pet.goodWithKids) score += 20;
-          else score -= 25;
-        }
+        // Convivencia y Familia
+        if (answers.hasNone) {
+          // Si no hay otros animales ni niños, los animales que necesitan hogar sin otros animales encajan genial
+          if (!pet.goodWithDogs || !pet.goodWithCats) score += 20;
+          else score += 15;
+        } else {
+          // Convivencia Niños
+          if (answers.hasKids) {
+            if (pet.goodWithKids) score += 20;
+            else score -= 30;
+          }
 
-        // Convivencia Perros
-        if (answers.hasDogs) {
-          if (pet.goodWithDogs) score += 15;
-          else score -= 20;
-        }
+          // Convivencia Perros
+          if (answers.hasDogs) {
+            if (pet.goodWithDogs) score += 20;
+            else score -= 35;
+          }
 
-        // Convivencia Gatos
-        if (answers.hasCats) {
-          if (pet.goodWithCats) score += 15;
-          else score -= 20;
+          // Convivencia Gatos
+          if (answers.hasCats) {
+            if (pet.goodWithCats) score += 20;
+            else score -= 35;
+          }
+
+          // Adultos Mayores
+          if (answers.hasSeniors) {
+            if (pet.ageGroup === "ADULTO" || pet.ageGroup === "SENIOR") score += 20;
+            if (pet.ageGroup === "CACHORRO") score -= 15;
+          }
         }
 
         // Tamaño y vivienda
-        if (answers.housing === "DEPTO") {
+        if (answers.housing === "DEPTO_SIN" || answers.housing === "DEPTO") {
           if (pet.size === "PEQUENO") score += 15;
-          if (pet.size === "GRANDE") score -= 10;
+          if (pet.size === "GRANDE") score -= 15;
+          if (pet.species === "GATO") score += 10;
+        } else if (answers.housing === "DEPTO_CON") {
+          if (pet.size === "PEQUENO" || pet.size === "MEDIANO") score += 15;
+        } else if (answers.housing === "CAMPO") {
+          if (pet.size === "GRANDE" || pet.size === "MEDIANO") score += 15;
         }
 
         if (answers.preferredSize !== "CUALQUIERA") {
           if (pet.size === answers.preferredSize) score += 20;
         }
 
-        // Nivel de energía aproximado por edad
+        // Nivel de energía aproximado por edad / rutina
         if (answers.energyLevel === "TRANQUILO") {
           if (pet.ageGroup === "ADULTO" || pet.ageGroup === "SENIOR") score += 15;
-          if (pet.ageGroup === "CACHORRO") score -= 10;
+          if (pet.ageGroup === "CACHORRO") score -= 15;
         } else if (answers.energyLevel === "ACTIVO") {
           if (pet.ageGroup === "CACHORRO" || pet.ageGroup === "JOVEN") score += 15;
+        } else if (answers.energyLevel === "INDEPENDIENTE") {
+          if (pet.species === "GATO" || pet.ageGroup === "ADULTO") score += 15;
+          if (pet.ageGroup === "CACHORRO") score -= 15;
         }
 
         const percentage = Math.min(99, Math.max(55, Math.round(score)));
@@ -103,6 +126,8 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
       hasKids: false,
       hasDogs: false,
       hasCats: false,
+      hasSeniors: false,
+      hasNone: true,
       preferredSize: "CUALQUIERA",
     });
   };
@@ -181,7 +206,7 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                 ¿Cómo describirías tu rutina y nivel de energía en casa?
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   {
                     id: "TRANQUILO",
@@ -201,12 +226,18 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                     desc: "Salidas a correr, excursiones, parque y mucho juego",
                     icon: "⚡",
                   },
+                  {
+                    id: "INDEPENDIENTE",
+                    title: "Pasa tiempo solo",
+                    desc: "Trabajo fuera varias horas, busco un compañero independiente",
+                    icon: "⏱️",
+                  },
                 ].map((item) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setAnswers({ ...answers, energyLevel: item.id })}
-                    className={`p-5 rounded-2xl border-2 text-center transition-all ${
+                    className={`p-4 rounded-2xl border-2 text-center transition-all ${
                       answers.energyLevel === item.id
                         ? "border-amber-500 bg-amber-50/60 ring-2 ring-amber-500/20"
                         : "border-slate-200 hover:border-amber-200 bg-white"
@@ -230,9 +261,10 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
 
               <div className="space-y-3">
                 <label className="block text-xs font-bold text-slate-700 uppercase">Tipo de espacio:</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { id: "DEPTO", label: "Departamento", icon: "🏢" },
+                    { id: "DEPTO_SIN", label: "Depto sin balcón", icon: "🏢" },
+                    { id: "DEPTO_CON", label: "Depto con balcón", icon: "🏙️" },
                     { id: "CASA", label: "Casa con patio", icon: "🏡" },
                     { id: "CAMPO", label: "Quinta o campo", icon: "🌳" },
                   ].map((h) => (
@@ -242,11 +274,11 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                       onClick={() => setAnswers({ ...answers, housing: h.id })}
                       className={`p-3 rounded-xl border text-center transition-all text-xs font-semibold ${
                         answers.housing === h.id
-                          ? "border-orange-500 bg-orange-50 text-orange-900 font-bold"
+                          ? "border-orange-500 bg-orange-50 text-orange-900 font-bold ring-2 ring-orange-500/20"
                           : "border-slate-200 hover:bg-slate-50 text-slate-700"
                       }`}
                     >
-                      <span className="block text-base">{h.icon}</span>
+                      <span className="block text-base mb-1">{h.icon}</span>
                       {h.label}
                     </button>
                   ))}
@@ -268,7 +300,7 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                       onClick={() => setAnswers({ ...answers, preferredSize: s.id })}
                       className={`p-2.5 rounded-xl border text-center transition-all text-xs ${
                         answers.preferredSize === s.id
-                          ? "border-orange-500 bg-orange-50 text-orange-900 font-bold"
+                          ? "border-orange-500 bg-orange-50 text-orange-900 font-bold ring-2 ring-orange-500/20"
                           : "border-slate-200 hover:bg-slate-50 text-slate-700"
                       }`}
                     >
@@ -287,15 +319,52 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                 ¿Con quién convivirá en el hogar?
               </h2>
               <p className="text-xs text-slate-500 text-center -mt-2">
-                Selecciona todos los que apliquen para filtrar animales con temperamento adecuado:
+                Selecciona las características de tu hogar para encontrar animales con el temperamento perfecto:
               </p>
 
               <div className="space-y-2.5">
+                {/* Opción Ninguno */}
+                <label
+                  className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    answers.hasNone
+                      ? "border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-500/20"
+                      : "border-slate-200 hover:bg-orange-50/30"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={answers.hasNone}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setAnswers({
+                        ...answers,
+                        hasNone: checked,
+                        ...(checked ? { hasKids: false, hasDogs: false, hasCats: false, hasSeniors: false } : {}),
+                      });
+                    }}
+                    className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+                  />
+                  <div>
+                    <strong className="text-xs text-slate-900 block">
+                      Ninguno (Vivo solo/a o solo adultos, sin otros animales)
+                    </strong>
+                    <span className="text-[11px] text-slate-500">
+                      Ideal para cualquier rescatado, inclusive aquellos que necesitan ser hijo único
+                    </span>
+                  </div>
+                </label>
+
                 <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:bg-orange-50/30 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={answers.hasKids}
-                    onChange={(e) => setAnswers({ ...answers, hasKids: e.target.checked })}
+                    onChange={(e) =>
+                      setAnswers({
+                        ...answers,
+                        hasKids: e.target.checked,
+                        ...(e.target.checked ? { hasNone: false } : {}),
+                      })
+                    }
                     className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
                   />
                   <div>
@@ -308,7 +377,13 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                   <input
                     type="checkbox"
                     checked={answers.hasDogs}
-                    onChange={(e) => setAnswers({ ...answers, hasDogs: e.target.checked })}
+                    onChange={(e) =>
+                      setAnswers({
+                        ...answers,
+                        hasDogs: e.target.checked,
+                        ...(e.target.checked ? { hasNone: false } : {}),
+                      })
+                    }
                     className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
                   />
                   <div>
@@ -321,12 +396,41 @@ export default function MascotaIdealWizard({ availablePets }: MascotaIdealWizard
                   <input
                     type="checkbox"
                     checked={answers.hasCats}
-                    onChange={(e) => setAnswers({ ...answers, hasCats: e.target.checked })}
+                    onChange={(e) =>
+                      setAnswers({
+                        ...answers,
+                        hasCats: e.target.checked,
+                        ...(e.target.checked ? { hasNone: false } : {}),
+                      })
+                    }
                     className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
                   />
                   <div>
                     <strong className="text-xs text-slate-900 block">Ya tengo otro gato en casa</strong>
                     <span className="text-[11px] text-slate-500">Mascotas que conviven pacíficamente con felinos</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:bg-orange-50/30 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={answers.hasSeniors}
+                    onChange={(e) =>
+                      setAnswers({
+                        ...answers,
+                        hasSeniors: e.target.checked,
+                        ...(e.target.checked ? { hasNone: false } : {}),
+                      })
+                    }
+                    className="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
+                  />
+                  <div>
+                    <strong className="text-xs text-slate-900 block">
+                      Viven adultos mayores / personas que buscan tranquilidad
+                    </strong>
+                    <span className="text-[11px] text-slate-500">
+                      Compañeros afectuosos, dóciles, calmos y no hiperactivos
+                    </span>
                   </div>
                 </label>
               </div>

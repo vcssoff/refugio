@@ -66,6 +66,48 @@ export default function AdminSolicitudesClient({
     }
   };
 
+  // Acción para tick (confirmar adopción) o cruz (rechazar solicitud)
+  const handleApplicationStatus = async (appId: string, action: "APPROVE" | "REJECT") => {
+    const isApprove = action === "APPROVE";
+    const confirmPrompt = isApprove
+      ? "¿Deseas CONFIRMAR la adopción para este postulante? La mascota quedará automáticamente como ADOPTADA en toda la web y se le notificará al adoptante por correo."
+      : "¿Deseas RECHAZAR esta solicitud de adopción? Se le enviará una notificación por correo al postulante.";
+
+    if (!confirm(confirmPrompt)) return;
+
+    setLoadingId(appId);
+    setMessage(null);
+
+    try {
+      const res = await fetch(`/api/applications/${appId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al actualizar la solicitud");
+
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.id === appId
+            ? { ...app, status: action === "APPROVE" ? "APROBADO" : "RECHAZADO" }
+            : app
+        )
+      );
+
+      setMessage({
+        text: data.message || (isApprove ? "¡Adopción confirmada!" : "Solicitud rechazada."),
+        type: "success",
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) setMessage({ text: err.message, type: "error" });
+      else setMessage({ text: "Error al procesar la solicitud", type: "error" });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
       {/* Header con gradiente cálido */}
@@ -247,6 +289,22 @@ export default function AdminSolicitudesClient({
                       <span className="text-xs font-bold text-orange-700 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
                         Postulación para: {app.pet.title}
                       </span>
+                      {app.status === "APROBADO" ? (
+                        <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          ¡ADOPCIÓN CONFIRMADA!
+                        </span>
+                      ) : app.status === "RECHAZADO" ? (
+                        <span className="text-xs font-black text-rose-800 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300 flex items-center gap-1">
+                          <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                          RECHAZADA
+                        </span>
+                      ) : (
+                        <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          PENDIENTE DE RESPUESTA
+                        </span>
+                      )}
                       {app.isPreVisit && (
                         <span className="text-xs font-black text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-rose-500" />
@@ -311,8 +369,64 @@ export default function AdminSolicitudesClient({
                     )}
                   </div>
 
-                  {/* Acciones de Contacto */}
-                  <div className="shrink-0 flex flex-col gap-2 w-full md:w-auto">
+                  {/* Acciones de Contacto & Botones Tick / Cruz */}
+                  <div className="shrink-0 flex flex-col gap-2.5 w-full md:w-56">
+                    {/* Botones Tick y Cruz */}
+                    {app.status === "APROBADO" ? (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-1">
+                        <div className="inline-flex items-center gap-1.5 text-emerald-800 font-extrabold text-xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          Adopción Confirmada
+                        </div>
+                        <p className="text-[10px] text-emerald-700">Mascota marcada como Adoptada</p>
+                      </div>
+                    ) : app.status === "RECHAZADO" ? (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-1">
+                        <div className="inline-flex items-center gap-1.5 text-rose-800 font-extrabold text-xs">
+                          <XCircle className="w-4 h-4 text-rose-600" />
+                          Solicitud Rechazada
+                        </div>
+                        <p className="text-[10px] text-rose-700">Postulante notificado por correo</p>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                        <span className="block text-[11px] font-bold text-slate-700 text-center uppercase tracking-wider">
+                          Responder Postulación
+                        </span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={loadingId === app.id}
+                            onClick={() => handleApplicationStatus(app.id, "APPROVE")}
+                            className="min-h-[42px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl text-xs shadow-xs touch-manipulation cursor-pointer transition-all disabled:opacity-50"
+                            title="Confirmar Adopción (Marcar como adoptada y notificar)"
+                          >
+                            {loadingId === app.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            )}
+                            <span>Aprobar</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={loadingId === app.id}
+                            onClick={() => handleApplicationStatus(app.id, "REJECT")}
+                            className="min-h-[42px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-xl text-xs shadow-xs touch-manipulation cursor-pointer transition-all disabled:opacity-50"
+                            title="Rechazar Solicitud (Si la persona no convence)"
+                          >
+                            {loadingId === app.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-white" />
+                            )}
+                            <span>Rechazar</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     <a
                       href={`mailto:${app.email}?subject=Confirmaci%C3%B3n%20de%20visita%20en%20Refugio%20Patitas%20para%20${encodeURIComponent(app.pet.title)}`}
                       className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs text-center shadow-xs transition-colors"

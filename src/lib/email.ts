@@ -183,3 +183,128 @@ export async function sendAdoptionApplicationAlert(params: AdoptionApplicationPa
     return { success: false, error };
   }
 }
+
+interface AdoptionStatusNotificationParams {
+  applicantName: string;
+  applicantEmail: string;
+  petTitle: string;
+  status: "APROBADO" | "RECHAZADO";
+  notes?: string;
+}
+
+export async function sendAdoptionStatusNotification({
+  applicantName,
+  applicantEmail,
+  petTitle,
+  status,
+  notes,
+}: AdoptionStatusNotificationParams) {
+  const isApproved = status === "APROBADO";
+  const subject = isApproved
+    ? `🎉 ¡Felicidades! Tu adopción de "${petTitle}" fue Aprobada - Refugio Patitas`
+    : `Actualización sobre tu solicitud para "${petTitle}" - Refugio Patitas`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: ${isApproved ? "#059669" : "#e11d48"}; color: #ffffff; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 22px;">${isApproved ? "🎉 ¡Solicitud de Adopción Aprobada!" : "Actualización de Solicitud"}</h1>
+      </div>
+      <div style="padding: 24px;">
+        <p>Hola <strong>${applicantName}</strong>,</p>
+        ${
+          isApproved
+            ? `<p>¡Tenemos una hermosa noticia! El equipo del refugio ha <strong>aprobado tu postulación</strong> para adoptar a <strong>${petTitle}</strong>.</p>
+               <p>La mascota ha sido marcada como <strong>ADOPTADA</strong> en nuestra plataforma. El equipo se pondrá en contacto contigo para los pasos finales de la entrega responsable y bienvenida al hogar.</p>`
+            : `<p>Queremos agradecerte de corazón por tu interés y postulación para adoptar a <strong>${petTitle}</strong>.</p>
+               <p>En esta ocasión, la solicitud no ha sido seleccionada o la mascota ya encontró otro hogar adecuado. Te animamos a seguir postulándote para otros rescatados que aún esperan una familia amorosa.</p>`
+        }
+        ${notes ? `<p style="background: #f8fafc; padding: 12px; border-radius: 8px; font-style: italic;"><strong>Nota del refugio:</strong> "${notes}"</p>` : ""}
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${appUrl}/adopciones" style="background-color: #f97316; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            Ver Más Mascotas en Refugio Patitas
+          </a>
+        </div>
+      </div>
+      <div style="background-color: #f1f5f9; padding: 12px; text-align: center; font-size: 12px; color: #64748b;">
+        Refugio Patitas • Cuidando a los animales juntos
+      </div>
+    </div>
+  `;
+
+  if (!resend) {
+    console.log(`[EMAIL SIMULADO] Notificación de estado (${status}) enviada a ${applicantEmail} para "${petTitle}"`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const data = await resend.emails.send({
+      from: fromEmail,
+      to: applicantEmail,
+      subject,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al enviar notificación de adopción con Resend:", error);
+    return { success: false, error };
+  }
+}
+
+interface PetDeletedAlertParams {
+  petTitle: string;
+  petType: string;
+  deletedByEmail: string;
+  authorEmail: string;
+  toEmail?: string;
+}
+
+export async function sendPetDeletedAlert({
+  petTitle,
+  petType,
+  deletedByEmail,
+  authorEmail,
+  toEmail,
+}: PetDeletedAlertParams) {
+  const targetEmail = toEmail || process.env.ADMIN_EMAIL || "sofiaacedress@gmail.com";
+  const subject = `🗑️ Publicación eliminada por el usuario: "${petTitle}" (${petType})`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #ea580c; color: #ffffff; padding: 20px; text-align: center;">
+        <h1 style="margin: 0; font-size: 20px;">🗑️ Aviso de Publicación Eliminada</h1>
+      </div>
+      <div style="padding: 24px;">
+        <p>Hola Administrador/a,</p>
+        <p>Te informamos que un usuario ha <strong>eliminado directamente</strong> una publicación en la plataforma (por ejemplo, porque la mascota fue encontrada/reunida o retirada):</p>
+        <div style="background-color: #fff7ed; border-left: 4px solid #ea580c; padding: 12px 16px; margin: 16px 0; border-radius: 6px;">
+          <p style="margin: 4px 0;"><strong>Mascota:</strong> ${petTitle}</p>
+          <p style="margin: 4px 0;"><strong>Tipo:</strong> ${petType}</p>
+          <p style="margin: 4px 0;"><strong>Publicado por:</strong> ${authorEmail}</p>
+          <p style="margin: 4px 0;"><strong>Eliminado por:</strong> ${deletedByEmail}</p>
+          <p style="margin: 4px 0;"><strong>Fecha:</strong> ${new Date().toLocaleString("es-UY")}</p>
+        </div>
+      </div>
+      <div style="background-color: #f1f5f9; padding: 12px; text-align: center; font-size: 12px; color: #64748b;">
+        Refugio Patitas • Sistema automático de notificaciones
+      </div>
+    </div>
+  `;
+
+  if (!resend) {
+    console.log(`[EMAIL SIMULADO] Aviso de eliminación para ${targetEmail}: "${petTitle}" por ${deletedByEmail}`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const data = await resend.emails.send({
+      from: fromEmail,
+      to: targetEmail,
+      subject,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al enviar alerta de eliminación con Resend:", error);
+    return { success: false, error };
+  }
+}

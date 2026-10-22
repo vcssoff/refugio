@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ResponsivePicture from "@/components/ResponsivePicture";
 import AdoptionFormModal from "@/components/AdoptionFormModal";
@@ -34,6 +35,8 @@ import {
   Sparkles,
   Stethoscope,
   Pencil,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 
 const MapExplorer = dynamic(() => import("@/components/map/MapExplorer"), {
@@ -45,11 +48,12 @@ const MapExplorer = dynamic(() => import("@/components/map/MapExplorer"), {
   ),
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function PetDetailClient({ pet }: { pet: any }) {
+  const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAdoptionModalOpen, setIsAdoptionModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const images = pet.images || [];
   const activeImage = images[selectedImageIndex] || images[0];
@@ -71,6 +75,25 @@ export default function PetDetailClient({ pet }: { pet: any }) {
     isVerifiedShelter ||
     sessionEmail === "sofiaacedress@gmail.com" ||
     session?.user?.id === pet.userId;
+
+  const handleDeletePet = async () => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar la publicación de "${pet.title}"?`)) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/pets/${pet.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Error al eliminar");
+      }
+      router.push(pet.type === "ADOPCION" ? "/adopciones" : "/perdidos");
+      router.refresh();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Error al eliminar");
+      setIsDeleting(false);
+    }
+  };
 
   const handleShare = () => {
     if (typeof window !== "undefined") {
@@ -109,14 +132,31 @@ export default function PetDetailClient({ pet }: { pet: any }) {
 
         <div className="flex items-center gap-2 flex-wrap">
           {isOwnerOrAdmin && (
-            <Link
-              href={`/mascota/${pet.id}/editar`}
-              className="min-h-[42px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold active:scale-95 touch-manipulation cursor-pointer transition-all shadow-xs"
-              title="Editar información y fotos de la mascota"
-            >
-              <Pencil className="w-3.5 h-3.5 text-amber-700" />
-              <span>Editar Ficha y Fotos</span>
-            </Link>
+            <>
+              <Link
+                href={`/mascota/${pet.id}/editar`}
+                className="min-h-[42px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold active:scale-95 touch-manipulation cursor-pointer transition-all shadow-xs"
+                title="Editar información y fotos de la mascota"
+              >
+                <Pencil className="w-3.5 h-3.5 text-amber-700" />
+                <span>Editar Ficha</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleDeletePet}
+                disabled={isDeleting}
+                className="min-h-[42px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold active:scale-95 touch-manipulation cursor-pointer transition-all shadow-xs disabled:opacity-50"
+                title="Eliminar publicación directamente"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                )}
+                <span>{isDeleting ? "Eliminando..." : "Eliminar"}</span>
+              </button>
+            </>
           )}
 
           {isLostOrFound && (
@@ -377,30 +417,30 @@ export default function PetDetailClient({ pet }: { pet: any }) {
               <div className="flex flex-wrap gap-2 text-xs">
                 <span
                   className={`px-3 py-1.5 rounded-xl font-semibold border ${
-                    pet.goodWithKids
-                      ? "bg-rose-50 text-rose-900 border-rose-200"
-                      : "bg-[#fbf8f3] text-stone-500 border-[#ded5c7]"
-                  }`}
-                >
-                  {pet.goodWithKids ? "✅ Apto para Niños" : "⚠️ Preferible sin niños pequeños"}
-                </span>
-                <span
-                  className={`px-3 py-1.5 rounded-xl font-semibold border ${
                     pet.goodWithDogs
-                      ? "bg-orange-50 text-orange-900 border-orange-200"
-                      : "bg-[#fbf8f3] text-stone-500 border-[#ded5c7]"
+                      ? "bg-emerald-50 text-emerald-900 border-emerald-200"
+                      : "bg-rose-50 text-rose-800 border-rose-200"
                   }`}
                 >
-                  {pet.goodWithDogs ? "✅ Sociable con perros" : "⚠️ Único perro"}
+                  {pet.goodWithDogs ? "✅ Se lleva bien con perros" : "❌ No se lleva con perros"}
                 </span>
                 <span
                   className={`px-3 py-1.5 rounded-xl font-semibold border ${
                     pet.goodWithCats
-                      ? "bg-amber-50 text-amber-900 border-amber-200"
-                      : "bg-[#fbf8f3] text-stone-500 border-[#ded5c7]"
+                      ? "bg-emerald-50 text-emerald-900 border-emerald-200"
+                      : "bg-rose-50 text-rose-800 border-rose-200"
                   }`}
                 >
-                  {pet.goodWithCats ? "✅ Sociable con gatos" : "⚠️ No convive con gatos"}
+                  {pet.goodWithCats ? "✅ Se lleva bien con gatos" : "❌ No se lleva con gatos"}
+                </span>
+                <span
+                  className={`px-3 py-1.5 rounded-xl font-semibold border ${
+                    pet.goodWithKids
+                      ? "bg-emerald-50 text-emerald-900 border-emerald-200"
+                      : "bg-rose-50 text-rose-800 border-rose-200"
+                  }`}
+                >
+                  {pet.goodWithKids ? "✅ Se lleva bien con niños" : "❌ No se lleva con niños"}
                 </span>
               </div>
             </div>

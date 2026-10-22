@@ -16,6 +16,9 @@ import {
   Phone,
   Home,
   AlertCircle,
+  Trash2,
+  Pencil,
+  Loader2,
 } from "lucide-react";
 import { TYPE_LABELS, PetType } from "@/lib/constants";
 
@@ -39,8 +42,112 @@ interface UserProfileData {
 export default function PerfilClient({ data }: { data: UserProfileData }) {
   const { user, pets, receivedApplications, sentApplications } = data;
   const [activeTab, setActiveTab] = useState<"pets" | "received" | "sent">("pets");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedApp, setSelectedApp] = useState<any | null>(null);
+  const [myPets, setMyPets] = useState(pets);
+  const [myReceived, setMyReceived] = useState(receivedApplications);
+  const [mySent, setMySent] = useState(sentApplications);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  // Eliminar post directamente por el usuario
+  const handleDeletePet = async (petId: string, petTitle: string) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar la publicación de "${petTitle}"? Esta acción es definitiva.`)) {
+      return;
+    }
+
+    setLoadingId(petId);
+    setMessage(null);
+
+    try {
+      const res = await fetch(`/api/pets/${petId}`, { method: "DELETE" });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "Error al eliminar la publicación");
+
+      setMyPets((prev) => prev.filter((p) => p.id !== petId));
+      setMessage({
+        text: `La publicación de "${petTitle}" fue eliminada correctamente.`,
+        type: "success",
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) setMessage({ text: err.message, type: "error" });
+      else setMessage({ text: "Error inesperado al eliminar", type: "error" });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // Tick (Aprobar) o Cruz (Rechazar) para postulaciones recibidas
+  const handleApplicationStatus = async (appId: string, action: "APPROVE" | "REJECT") => {
+    const isApprove = action === "APPROVE";
+    const promptText = isApprove
+      ? "¿Deseas CONFIRMAR la adopción para este postulante? La mascota quedará automáticamente como ADOPTADA y se le notificará al adoptante."
+      : "¿Deseas RECHAZAR esta postulación de adopción? Se le enviará una notificación al usuario.";
+
+    if (!confirm(promptText)) return;
+
+    setLoadingId(appId);
+    setMessage(null);
+
+    try {
+      const res = await fetch(`/api/applications/${appId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "Error al actualizar la postulación");
+
+      setMyReceived((prev) =>
+        prev.map((app) =>
+          app.id === appId
+            ? { ...app, status: action === "APPROVE" ? "APROBADO" : "RECHAZADO" }
+            : app
+        )
+      );
+
+      setMessage({
+        text: resData.message || (isApprove ? "¡Adopción confirmada!" : "Postulación rechazada."),
+        type: "success",
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) setMessage({ text: err.message, type: "error" });
+      else setMessage({ text: "Error al responder postulación", type: "error" });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // Cancelar solicitud enviada por el adoptante
+  const handleCancelApplication = async (appId: string) => {
+    if (!confirm("¿Deseas cancelar esta solicitud de adopción?")) return;
+
+    setLoadingId(appId);
+    setMessage(null);
+
+    try {
+      const res = await fetch(`/api/applications/${appId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "CANCEL" }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "Error al cancelar la solicitud");
+
+      setMySent((prev) =>
+        prev.map((app) =>
+          app.id === appId ? { ...app, status: "CANCELADO" } : app
+        )
+      );
+
+      setMessage({ text: "Solicitud cancelada correctamente.", type: "success" });
+    } catch (err: unknown) {
+      if (err instanceof Error) setMessage({ text: err.message, type: "error" });
+      else setMessage({ text: "Error al cancelar solicitud", type: "error" });
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -85,6 +192,23 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
         </Link>
       </div>
 
+      {message && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2 ${
+            message.type === "success"
+              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              : "bg-rose-50 text-rose-800 border border-rose-200"
+          }`}
+        >
+          {message.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex border-b border-slate-200 gap-6 text-sm font-bold">
         <button
@@ -96,7 +220,7 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
           }`}
         >
           <PawPrint className="w-4 h-4" />
-          Mis Publicaciones ({pets.length})
+          Mis Publicaciones ({myPets.length})
         </button>
 
         <button
@@ -108,7 +232,7 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
           }`}
         >
           <Heart className="w-4 h-4" />
-          Postulaciones Recibidas ({receivedApplications.length})
+          Postulaciones Recibidas ({myReceived.length})
         </button>
 
         <button
@@ -120,17 +244,17 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
           }`}
         >
           <FileText className="w-4 h-4" />
-          Mis Solicitudes Enviadas ({sentApplications.length})
+          Mis Solicitudes Enviadas ({mySent.length})
         </button>
       </div>
 
       {/* Contenido Tab 1: Mis Publicaciones */}
       {activeTab === "pets" && (
         <div className="space-y-4">
-          {pets.length > 0 ? (
+          {myPets.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {pets.map((pet: any) => {
+              {myPets.map((pet: any) => {
                 const typeConfig = TYPE_LABELS[pet.type as PetType] || {
                   label: pet.type,
                   badgeColor: "bg-slate-100 text-slate-700",
@@ -169,6 +293,16 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
                               <CheckCircle2 className="w-3 h-3" /> Publicado
                             </span>
                           )}
+                          {pet.status === "ADOPTADO" && (
+                            <span className="bg-purple-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-xs backdrop-blur-xs flex items-center gap-1">
+                              <Heart className="w-3 h-3 fill-white" /> Adoptado
+                            </span>
+                          )}
+                          {pet.status === "REUNIDO" && (
+                            <span className="bg-teal-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-xs backdrop-blur-xs flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Reunido con su familia
+                            </span>
+                          )}
                           {pet.status === "RECHAZADO" && (
                             <span className="bg-rose-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-xs backdrop-blur-xs flex items-center gap-1">
                               <XCircle className="w-3 h-3" /> Rechazado
@@ -192,16 +326,37 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
                       </div>
                     </div>
 
-                    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
-                      <Link
-                        href={`/mascota/${pet.id}`}
-                        className="text-teal-600 hover:text-teal-800"
+                    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold gap-2">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/mascota/${pet.id}`}
+                          className="text-teal-600 hover:text-teal-800"
+                        >
+                          Ver
+                        </Link>
+                        <span>•</span>
+                        <Link
+                          href={`/mascota/${pet.id}/editar`}
+                          className="text-amber-700 hover:text-amber-900 font-bold"
+                        >
+                          Editar
+                        </Link>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePet(pet.id, pet.title)}
+                        disabled={loadingId === pet.id}
+                        className="inline-flex items-center gap-1 text-rose-600 hover:text-rose-800 font-bold px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
+                        title="Eliminar publicación directamente"
                       >
-                        Ver Ficha Pública →
-                      </Link>
-                      <span className="text-slate-400">
-                        {new Date(pet.createdAt).toLocaleDateString("es-AR")}
-                      </span>
+                        {loadingId === pet.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Eliminar</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -219,22 +374,38 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
         </div>
       )}
 
-      {/* Contenido Tab 2: Postulaciones Recibidas (con detalle del cuestionario) */}
+      {/* Contenido Tab 2: Postulaciones Recibidas */}
       {activeTab === "received" && (
         <div className="space-y-4">
-          {receivedApplications.length > 0 ? (
+          {myReceived.length > 0 ? (
             <div className="space-y-4">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {receivedApplications.map((app: any) => (
+              {myReceived.map((app: any) => (
                 <div
                   key={app.id}
                   className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-start justify-between gap-6"
                 >
                   <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">
                         Para: {app.pet.title}
                       </span>
+                      {app.status === "APROBADO" ? (
+                        <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          ADOPCIÓN CONFIRMADA
+                        </span>
+                      ) : app.status === "RECHAZADO" ? (
+                        <span className="text-xs font-black text-rose-800 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300 flex items-center gap-1">
+                          <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                          RECHAZADA
+                        </span>
+                      ) : (
+                        <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          PENDIENTE DE RESPUESTA
+                        </span>
+                      )}
                       <span className="text-xs text-slate-400">
                         {new Date(app.createdAt).toLocaleDateString("es-AR")}
                       </span>
@@ -281,7 +452,63 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
                     )}
                   </div>
 
-                  <div className="shrink-0 flex flex-col gap-2 w-full md:w-auto">
+                  <div className="shrink-0 flex flex-col gap-2 w-full md:w-56">
+                    {/* Botones de Tick y Cruz */}
+                    {app.status === "APROBADO" ? (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-1">
+                        <div className="inline-flex items-center gap-1.5 text-emerald-800 font-extrabold text-xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          Adopción Confirmada
+                        </div>
+                        <p className="text-[10px] text-emerald-700">Mascota marcada como Adoptada</p>
+                      </div>
+                    ) : app.status === "RECHAZADO" ? (
+                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-1">
+                        <div className="inline-flex items-center gap-1.5 text-rose-800 font-extrabold text-xs">
+                          <XCircle className="w-4 h-4 text-rose-600" />
+                          Solicitud Rechazada
+                        </div>
+                        <p className="text-[10px] text-rose-700">El usuario fue notificado</p>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                        <span className="block text-[11px] font-bold text-slate-700 text-center uppercase tracking-wider">
+                          Responder Postulación
+                        </span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={loadingId === app.id}
+                            onClick={() => handleApplicationStatus(app.id, "APPROVE")}
+                            className="min-h-[40px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl text-xs shadow-xs touch-manipulation cursor-pointer transition-all disabled:opacity-50"
+                            title="Confirmar Adopción (Marcar como adoptada y notificar)"
+                          >
+                            {loadingId === app.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            )}
+                            <span>Aprobar</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={loadingId === app.id}
+                            onClick={() => handleApplicationStatus(app.id, "REJECT")}
+                            className="min-h-[40px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-xl text-xs shadow-xs touch-manipulation cursor-pointer transition-all disabled:opacity-50"
+                            title="Rechazar Solicitud"
+                          >
+                            {loadingId === app.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-white" />
+                            )}
+                            <span>Rechazar</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     <a
                       href={`mailto:${app.email}?subject=Respuesta%20a%20tu%20postulaci%C3%B3n%20para%20${encodeURIComponent(app.pet.title)}`}
                       className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs text-center transition-colors"
@@ -317,26 +544,62 @@ export default function PerfilClient({ data }: { data: UserProfileData }) {
       {/* Contenido Tab 3: Mis Solicitudes Enviadas */}
       {activeTab === "sent" && (
         <div className="space-y-4">
-          {sentApplications.length > 0 ? (
+          {mySent.length > 0 ? (
             <div className="space-y-4">
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {sentApplications.map((app: any) => (
+              {mySent.map((app: any) => (
                 <div
                   key={app.id}
-                  className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex items-center justify-between"
+                  className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">{app.pet.title}</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Enviada el {new Date(app.createdAt).toLocaleDateString("es-AR")} al refugio ({app.pet.contactEmail})
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-slate-900">{app.pet.title}</h3>
+                      {app.status === "APROBADO" ? (
+                        <span className="text-[11px] font-black text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          ¡ADOPCIÓN APROBADA! 🎉
+                        </span>
+                      ) : app.status === "RECHAZADO" ? (
+                        <span className="text-[11px] font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300">
+                          No seleccionada
+                        </span>
+                      ) : app.status === "CANCELADO" ? (
+                        <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-300">
+                          Cancelada por ti
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-amber-600" />
+                          En revisión
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Enviada el {new Date(app.createdAt).toLocaleDateString("es-AR")} al contacto ({app.pet.contactEmail})
                     </p>
                   </div>
-                  <Link
-                    href={`/mascota/${app.pet.id}`}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors"
-                  >
-                    Ver Mascota
-                  </Link>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link
+                      href={`/mascota/${app.pet.id}`}
+                      className="flex-1 sm:flex-none px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl text-center transition-colors"
+                    >
+                      Ver Mascota
+                    </Link>
+
+                    {app.status === "EN_REVISION" && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelApplication(app.id)}
+                        disabled={loadingId === app.id}
+                        className="flex-1 sm:flex-none px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Cancelar solicitud si cambiaste de idea"
+                      >
+                        {loadingId === app.id ? "Cancelando..." : "Cancelar Solicitud"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
