@@ -1,112 +1,90 @@
-# 🐾 Refugio - Plataforma Comunitaria de Adopción y Búsqueda
+# Refugio Patitas
 
-Plataforma fullstack moderna construida con **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Prisma ORM**, **Leaflet + OpenStreetMap** y **Resend**.
+Sistema web para la gestión de adopciones responsables y el reporte de mascotas perdidas o encontradas en Uruguay.
 
-Optimizada para **costo cero en infraestructura** y alto impacto social y de rescate animal.
-
----
-
-## 🚀 Características Principales
-
-1. **Catálogo de Adopciones Responsables:**
-   - Filtros facetados en tiempo real por especie (Perro, Gato, Otros), tamaño, edad, género y compatibilidad con niños, perros y gatos.
-   - Fichas detalladas con galería fotográfica adaptable.
-
-2. **Cuestionario de Adopción Primeriza:**
-   - Formulario que evalúa tipo de vivienda, si cuenta con patio cerrado, integrantes de la casa (bebés/niños), tiempo libre y experiencia previa.
-   - Envío automático de la postulación al correo electrónico del refugio o rescatista mediante **Resend**.
-
-3. **Mascotas Perdidas y Encontradas con Mapa de 300 Metros:**
-   - Mapa interactivo con **Leaflet + OpenStreetMap** (100% gratuito, sin límites ni claves API de Google).
-   - Visualización y selector de radio de **300 metros** alrededor del último punto de avistamiento.
-
-4. **Pipeline de Fotos WebP en Cliente (0 Costo en Vercel):**
-   - Las fotos se convierten y redimensionan en el navegador del usuario a **WebP en 4 resoluciones** (320px, 640px, 1024px, 1600px).
-   - Renderizado con la etiqueta nativa `<picture>` y `<img loading="lazy" srcset="...">`.
-   - **0 consumo de la cuota de optimización de imágenes de Vercel**.
-
-5. **Sistema de Moderación Comunitaria:**
-   - Todas las publicaciones nuevas entran en estado `PENDIENTE_MODERACION`.
-   - El dueño del sitio (`ADMIN`) y los rescatistas verificados (`REFUGIO`) pueden aprobar o rechazar publicaciones desde el panel `/moderacion`.
-   - Notificación por correo al administrador cuando entra una nueva publicación.
-
-6. **Autenticación y Roles:**
-   - Soporte para inicio de sesión con Credenciales (Email + Contraseña con hash bcrypt) y Google OAuth.
-   - Roles definidos: `ADMIN`, `REFUGIO` (Verificado), `USUARIO`.
+La plataforma permite a refugios, rescatistas y particulares publicar animales en adopción, recibir solicitudes con formularios detallados de convivencia y geolocalizar avisos de animales perdidos manteniendo la privacidad del hogar.
 
 ---
 
-## 🛠️ Instalación y Ejecución Local
+## Funcionalidades
 
-### 1. Clonar e Instalar Dependencias
+### Adopciones
+- **Catálogo interactivo:** Filtros por especie (perros, gatos, otros), tamaño, sexo, edad y compatibilidad comprobada con niños, perros y gatos.
+- **Ficha completa del animal:** Nombre, historia, cuidados especiales, vacunas, castración y estado de salud.
+- **Perfil de adoptante responsable:** Formulario que registra tipo de vivienda (casa, departamento, patio cerrado), integrantes de la familia, tiempo disponible y experiencia previa.
+- **Gestión de solicitudes:** Los administradores y rescatistas pueden revisar postulaciones, coordinar visitas y confirmar o rechazar adopciones con notificación directa.
+
+### Mascotas Perdidas y Encontradas
+- **Reporte comunitario:** Publicación de avisos con fotos, señas particulares y fecha de pérdida o hallazgo.
+- **Mapa de ubicación:** Integración con Leaflet y OpenStreetMap que muestra un radio aproximado de 300 metros para resguardar la dirección exacta del usuario.
+- **Muro de avistamientos:** Espacio en cada ficha para que vecinos dejen comentarios o información sobre posibles avistamientos.
+- **Cierre de publicaciones:** Los usuarios pueden marcar a su mascota como recuperada o eliminar la publicación cuando se resuelve el caso.
+
+### Test de Afinidad ("Mi Mascota Ideal")
+- Cuestionario guiado que analiza el tiempo libre, espacio en el hogar y composición familiar para sugerir los animales más afines disponibles en el refugio.
+
+### Panel de Administración
+- Publicación directa o moderación de avisos comunitarios.
+- Edición de fichas existentes (datos generales, fotos y herramienta de reencuadre facial interactivo).
+- Historial y seguimiento de solicitudes de adopción.
+
+---
+
+## Tecnologías
+
+- **Framework:** Next.js (App Router)
+- **Lenguaje:** TypeScript
+- **Estilos:** Tailwind CSS
+- **Base de datos y ORM:** PostgreSQL con Prisma
+- **Autenticación:** NextAuth.js
+- **Mapas:** Leaflet / OpenStreetMap
+- **Imágenes:** Carga y conversión a formato WebP en el navegador, almacenamiento en Vercel Blob
+- **Correos y Notificaciones:** Resend
+
+---
+
+## Instalación y Configuración Local
+
+### 1. Requisitos
+- Node.js 18 o superior
+- Base de datos PostgreSQL (local o servicio en la nube como Neon / Supabase)
+
+### 2. Clonar e instalar dependencias
 ```bash
+git clone https://github.com/vcssoff/refugio.git
+cd refugio
 npm install
 ```
 
-### 2. Configurar Variables de Entorno
-Copia el archivo `.env.example` a `.env`:
+### 3. Configurar variables de entorno
+Crear un archivo `.env` a partir del ejemplo:
 ```bash
 cp .env.example .env
 ```
+Completar las variables requeridas en `.env` (cadena de conexión de PostgreSQL, secret de NextAuth y credenciales de servicios).
 
-*(En desarrollo local ya viene configurado para usar SQLite `file:./dev.db` sin necesidad de instalar Postgres localmente).*
-
-### 3. Crear Base de Datos y Cargar Datos de Prueba
+### 4. Sincronizar base de datos
 ```bash
 npx prisma db push
+```
+
+*(Opcional) Cargar datos de prueba:*
+```bash
 npm run db:seed
 ```
 
-### 4. Iniciar el Servidor de Desarrollo
+### 5. Iniciar en desarrollo
 ```bash
 npm run dev
 ```
-Abre en tu navegador: [http://localhost:3000](http://localhost:3000).
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 👤 Cuentas Demo de Prueba (Sembradas en `db:seed`)
+## Scripts Disponibles
 
-Para probar los diferentes roles con un solo clic:
-* **Administrador (Acceso total y moderación):**
-  * Email: `admin@refugio.com`
-  * Contraseña: `admin123`
-* **Refugio Verificado (Aprobación comunitaria de publicaciones):**
-  * Email: `refugio@huellas.org`
-  * Contraseña: `refugio123`
-* **Usuario Adoptante:**
-  * Email: `usuario@ejemplo.com`
-  * Contraseña: `usuario123`
-
----
-
-## ☁️ Despliegue en GitHub y Vercel
-
-### Paso 1: Subir a tu GitHub
-```bash
-git add .
-git commit -m "feat: initial commit of Refugio platform"
-git branch -M main
-git remote add origin https://github.com/TU_USUARIO/refugio.git
-git push -u origin main
-```
-
-### Paso 2: Importar en Vercel
-1. Ve a [vercel.com](https://vercel.com) y selecciona **Add New Project**.
-2. Importa tu repositorio `refugio`.
-3. En la pestaña **Storage** de Vercel:
-   - Añade una base de datos **Postgres** (Neon gratuito). Esto inyectará automáticamente `DATABASE_URL` y `POSTGRES_PRISMA_URL`.
-   - Añade un almacenamiento **Blob** (para almacenar las imágenes WebP). Esto inyectará `BLOB_READ_WRITE_TOKEN`.
-4. En **Environment Variables**, configura:
-   - `NEXTAUTH_SECRET`: una clave secreta segura (genera con `openssl rand -base64 32`).
-   - `NEXTAUTH_URL`: la URL de tu proyecto en Vercel (ej. `https://refugio.vercel.app`).
-   - `ADMIN_EMAIL`: tu correo electrónico para recibir las alertas de moderación.
-   - `RESEND_API_KEY`: tu clave API gratuita de [resend.com](https://resend.com).
-   - `RESEND_FROM_EMAIL`: `onboarding@resend.dev` (o tu dominio verificado).
-5. En `prisma/schema.prisma`, cambia `provider = "sqlite"` a `provider = "postgresql"`.
-6. En Vercel, agrega el comando de build o ejecuta `npx prisma db push` en el primer deploy.
-
----
-
-## 📄 Licencia y Misión
-Desarrollado con pasión para salvar vidas y conectar animales rescatados con familias para siempre.
+- `npm run dev`: Inicia el servidor de desarrollo en el puerto 3000.
+- `npm run build`: Genera el cliente de Prisma y compila la aplicación para producción.
+- `npm run start`: Inicia el servidor compilado en producción.
+- `npm run lint`: Ejecuta el linter ESLint.
+- `npm run db:seed`: Carga datos iniciales de prueba en la base de datos.

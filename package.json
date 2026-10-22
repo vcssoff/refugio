@@ -1,6 +1,7 @@
 {
   "name": "refugio",
   "version": "0.1.0",
+  "description": "Plataforma web para la gestión de adopciones y reporte de mascotas en Uruguay",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
