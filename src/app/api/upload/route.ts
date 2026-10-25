@@ -15,29 +15,39 @@ export async function POST(req: Request) {
 
     const hasVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
     const uploadedUrls: string[] = [];
-
-    // Si es local y no hay Blob token, aseguramos la carpeta public/uploads
     const uploadDir = path.join(process.cwd(), "public", "uploads");
-    if (!hasVercelBlob) {
-      await fs.mkdir(uploadDir, { recursive: true });
-    }
 
     for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const randomName = `${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
       if (hasVercelBlob) {
-        // Subida a Vercel Blob (Producción)
-        const blob = await put(`pets/${randomName}`, buffer, {
-          access: "public",
-          contentType: file.type || "image/webp",
-        });
-        uploadedUrls.push(blob.url);
-      } else {
-        // Almacenamiento local en public/uploads (Desarrollo)
+        try {
+          // Subida a Vercel Blob (Producción con Blob conectado)
+          const blob = await put(`pets/${randomName}`, buffer, {
+            access: "public",
+            contentType: file.type || "image/webp",
+          });
+          uploadedUrls.push(blob.url);
+          continue;
+        } catch (blobErr) {
+          console.error("Error al subir a Vercel Blob, usando fallback:", blobErr);
+        }
+      }
+
+      // Si no hay Vercel Blob o falló:
+      // Intentamos guardar en public/uploads (entorno local con permisos de escritura)
+      try {
+        await fs.mkdir(uploadDir, { recursive: true });
         const filePath = path.join(uploadDir, randomName);
         await fs.writeFile(filePath, buffer);
         uploadedUrls.push(`/uploads/${randomName}`);
+      } catch (fsErr) {
+        // En Vercel Serverless el sistema de archivos es de solo lectura.
+        // Fallback a Base64 Data URL para que NUNCA se rompa una foto
+        const mimeType = file.type || "image/webp";
+        const base64Data = buffer.toString("base64");
+        uploadedUrls.push(`data:${mimeType};base64,${base64Data}`);
       }
     }
 
