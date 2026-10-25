@@ -23,10 +23,11 @@ export default function ResponsivePicture({
   imgClassName = "w-full h-full object-cover transition-transform duration-300 group-hover:scale-105",
   priority = false,
 }: ResponsivePictureProps) {
-  const [hasError, setHasError] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   // Seleccionar la mejor URL por defecto
   const fallbackSrc = card || detail || original || thumb || "";
+  const hasError = Boolean(fallbackSrc && failedSrc === fallbackSrc);
 
   if (!fallbackSrc || hasError) {
     return (
@@ -76,7 +77,7 @@ export default function ResponsivePicture({
         className={imgClassName}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        onError={() => setHasError(true)}
+        onError={() => setFailedSrc(fallbackSrc)}
       />
     </picture>
   );
