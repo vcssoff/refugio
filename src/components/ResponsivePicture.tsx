@@ -38,31 +38,51 @@ export default function ResponsivePicture({
     );
   }
 
+  // Si la imagen es un data URL (Base64), renderizamos directamente <img>.
+  // En HTML5, <source srcset> divide los candidatos por coma (,), lo cual
+  // rompería 'data:image/webp;base64,xxxx' en dos partes no válidas.
+  const isDataUrl = fallbackSrc.startsWith("data:");
+
+  if (isDataUrl) {
+    return (
+      <div className={className}>
+        <img
+          src={fallbackSrc}
+          alt={alt}
+          className={imgClassName}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          onError={() => setFailedSrc(fallbackSrc)}
+        />
+      </div>
+    );
+  }
+
   return (
     <picture className={className}>
-      {/* Resoluciones adaptadas a diferentes viewports */}
-      {thumb && (
+      {/* Resoluciones adaptadas a diferentes viewports para URLs estándar */}
+      {thumb && !thumb.startsWith("data:") && (
         <source
           media="(max-width: 480px)"
           srcSet={thumb}
           type="image/webp"
         />
       )}
-      {card && (
+      {card && !card.startsWith("data:") && (
         <source
           media="(max-width: 768px)"
           srcSet={card}
           type="image/webp"
         />
       )}
-      {detail && (
+      {detail && !detail.startsWith("data:") && (
         <source
           media="(max-width: 1280px)"
           srcSet={detail}
           type="image/webp"
         />
       )}
-      {original && (
+      {original && !original.startsWith("data:") && (
         <source
           media="(min-width: 1281px)"
           srcSet={original}
@@ -70,7 +90,7 @@ export default function ResponsivePicture({
         />
       )}
 
-      {/* Etiqueta img nativa estándar (0 cuota de Vercel Image Optimization) */}
+      {/* Etiqueta img nativa estándar */}
       <img
         src={fallbackSrc}
         alt={alt}
